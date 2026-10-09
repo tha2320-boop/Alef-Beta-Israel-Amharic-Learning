@@ -4,10 +4,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>פידל - תרגול אמהרית</title>
+<title>אלף-ביתא ישראל - למידת אמהרית</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=Noto+Sans+Ethiopic:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Suez+One&family=Noto+Sans+Ethiopic:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FFFFFF; --card:#FFFFFF; --ink:#3C3C3C; --muted:#777777; --line:#E5E5E5; --soft:#F7F7F7;
@@ -253,6 +253,147 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--blue); outline-
 .confetti i{position:absolute; top:-1rem; width:.55rem; height:.9rem; border-radius:.15rem; animation:fall 2.6s linear forwards}
 @keyframes fall{to{transform:translateY(95vh) rotate(540deg); opacity:.2}}
 @media (prefers-reduced-motion:reduce){ .confetti{display:none} .bounce,.callout,.l-foot.ok,.l-foot.no,.choice.flash{animation:none} .bar i{transition:none} }
+
+/* ===== tibeb theme =====
+   White cotton ground and dark ink; colour lives only in the woven bands (.weave), which double as progress:
+   what you have learned is woven, the rest is still bare thread. */
+:root{
+  --bg:#FCFBF8; --card:#FFFFFF; --ink:#1E1A2B; --muted:#67637C; --line:#E2DFE9; --soft:#F3F1F6;
+  --green:#14785A; --green-d:#0E5C45; --green-bg:#DDF1E9; --green-ink:#0E5C45;
+  --red:#C62F3B; --red-d:#9F222D; --red-bg:#FBE1E3; --red-ink:#A3212C;
+  --blue:#1F4FA8; --blue-d:#173D85; --blue-bg:#E2EAF8; --blue-ink:#1B4594;
+  --gold:#F4B41A; --gold-d:#8A5F00; --orange:#B24A08; --on:#FFFFFF; --btn:#1E1A2B; --btn-on:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16131F; --card:#1F1B2B; --ink:#F4F1FA; --muted:#A9A4BD; --line:#3A354B; --soft:#262136;
+    --green:#3FB48D; --green-d:#2C8F6E; --green-bg:#173B30; --green-ink:#8FE0C2;
+    --red:#EE6B75; --red-d:#C94752; --red-bg:#43212A; --red-ink:#FFA6AD;
+    --blue:#7FA6F0; --blue-d:#5C86D6; --blue-bg:#1E2C4D; --blue-ink:#B4CCFA;
+    --gold:#F4B41A; --gold-d:#F4C95A; --orange:#F09A5B; --on:#FFFFFF; --btn:#F4F1FA; --btn-on:#16131F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16131F; --card:#1F1B2B; --ink:#F4F1FA; --muted:#A9A4BD; --line:#3A354B; --soft:#262136;
+  --green:#3FB48D; --green-d:#2C8F6E; --green-bg:#173B30; --green-ink:#8FE0C2;
+  --red:#EE6B75; --red-d:#C94752; --red-bg:#43212A; --red-ink:#FFA6AD;
+  --blue:#7FA6F0; --blue-d:#5C86D6; --blue-bg:#1E2C4D; --blue-ink:#B4CCFA;
+  --gold:#F4B41A; --gold-d:#F4C95A; --orange:#F09A5B; --on:#FFFFFF; --btn:#F4F1FA; --btn-on:#16131F;
+}
+body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-size:1.0625rem; line-height:1.5}
+.title,.unit-h h2,.ask,.end h2,.chap b,.callout h3,.brand,.ghead h2,.fb-t{font-family:"Suez One","Assistant",serif; font-weight:400; letter-spacing:0}
+.eth{font-family:"Noto Sans Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif}
+
+/* the woven band */
+.weave{display:block; position:relative; width:100%; height:var(--h,14px); overflow:hidden; border-radius:2px; background:var(--soft)}
+.weave svg{position:absolute; inset:0; width:100%; height:100%; display:block}
+.weave .w0{opacity:.2; filter:saturate(.35)}
+.hem{margin:0 -1rem 1.1rem}
+.hem .weave{border-radius:0}
+
+/* top bar */
+.top{border-bottom:0; margin-bottom:0; gap:1rem; padding:.75rem 0 .6rem}
+.brand{font-size:1.35rem; line-height:1.15; display:flex; flex-direction:column} .brand small{font-family:"Assistant",sans-serif; font-size:.8rem; font-weight:600; color:var(--muted)}
+.brand .eth{font-size:1.15rem; font-weight:700; color:var(--muted)}
+.stat{font-weight:600; font-size:.95rem; color:var(--muted); gap:.3rem}
+.stat b{font-weight:800; color:var(--ink)} .stat.fire b,.stat.xp b{color:var(--ink)}
+.icon-btn{color:var(--ink); display:inline-flex; align-items:center}
+.icon-btn svg{display:block}
+
+/* buttons: flat, ink */
+.btn{font-weight:700; min-height:3rem; border-radius:.7rem; background:transparent; color:var(--ink); border:2px solid var(--ink); border-bottom-width:2px}
+.btn:active{transform:translateY(1px); border-bottom-width:2px; margin-bottom:0}
+.btn.primary,.btn.blue{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.btn.bad{background:var(--red); border-color:var(--red); color:var(--on)}
+.btn:disabled{background:var(--soft); border-color:var(--line); color:var(--muted)}
+.btn.go{margin:0 0 1rem} .btn.go small{font-weight:400; opacity:.85}
+
+/* home */
+.bubble{border:1.5px solid var(--line); border-radius:.7rem}
+.goal{border:0; border-radius:0; padding:0; margin-bottom:1.25rem}
+.goal-t{font-weight:700; margin-bottom:.4rem}
+.review{border:0; background:var(--soft); color:var(--ink); border-radius:.7rem}
+.review b{font-weight:700} .review span{color:var(--muted)}
+.unit{margin-bottom:2.75rem}
+.unit-h{background:none; color:var(--ink); border:0; border-radius:0; padding:0; margin-top:2rem}
+.unit-h small{color:var(--muted); font-weight:700; opacity:1}
+.unit-h h2{font-size:1.75rem; line-height:1.2}
+.unit-h p{color:var(--muted); opacity:1; font-size:1rem}
+.chap{border:1.5px solid var(--line); border-bottom-width:1.5px; border-radius:.7rem; padding:.8rem 1rem .95rem; background:var(--card); align-items:flex-start}
+.chap[aria-expanded="true"]{border-color:var(--ink); background:var(--card)}
+.chap .ci{gap:.15rem}
+.chap small{font-weight:600; font-size:.85rem; display:flex; gap:.7rem} .chap small span{unicode-bidi:isolate} .chap small span:first-child{color:var(--ink); font-weight:700}
+.chap b{font-size:1.2rem; line-height:1.3}
+.chap .weave{margin-top:.55rem}
+.chap .chev{font-size:.7rem; padding-top:.35rem}
+
+/* path nodes: a diamond, the basic tibeb motif */
+.node .ring{transform:none}
+.node .ring rect{fill:none; stroke-width:5}
+.node .ring .tr{stroke:var(--line)} .node .ring .pr{stroke:var(--gold); stroke-linecap:butt}
+.node .disc{inset:1.3rem; bottom:1.3rem; border-radius:.45rem; background:var(--c); box-shadow:none; transform:rotate(45deg); font-size:1.45rem; color:#fff}
+.node .disc > *{transform:rotate(-45deg); display:block; line-height:1}
+.node .disc .eth{color:#fff; font-weight:700}
+.node:active .disc{transform:rotate(45deg) scale(.93); box-shadow:none}
+.node.gold .disc{background:var(--gold); box-shadow:none; color:#1E1A2B} .node.gold .disc .eth{color:#1E1A2B}
+.nlabel{font-weight:700}
+.callout{background:var(--card); color:var(--ink); border:1.5px solid var(--ink); border-radius:.7rem; animation:none}
+.callout h3{font-size:1.25rem} .callout p{color:var(--muted); opacity:1}
+.callout .btn{background:var(--btn); color:var(--btn-on); border-color:var(--btn)}
+.tipb{border:0; background:none; color:var(--ink); text-decoration:underline; text-underline-offset:.2em; font-weight:600; padding:.7rem 0 .1rem; margin-top:.3rem}
+.foot button{color:var(--muted)}
+
+/* bottom nav: words, the current one marked by a small diamond */
+.nav{border-top:1.5px solid var(--line)}
+.nav div{padding:.55rem .8rem .5rem}
+.nav button{border:0; border-radius:.5rem; font-size:.95rem; font-weight:700; padding:.5rem .2rem .35rem; gap:.3rem; color:var(--muted)}
+.nav button::before{content:""; width:.5rem; height:.5rem; transform:rotate(45deg); background:var(--line)}
+.nav button[aria-current="page"]{background:none; color:var(--ink)}
+.nav button[aria-current="page"]::before{background:#D43C28}
+
+/* letters tab */
+.cell{border:1.5px solid var(--line); border-bottom-width:1.5px; border-radius:.45rem}
+.tog{border:1.5px solid var(--line); border-bottom-width:1.5px; border-radius:.45rem}
+.tog[aria-pressed="true"]{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.aud{border:1.5px solid var(--ink); border-bottom-width:1.5px; border-radius:.6rem; color:var(--ink); background:transparent}
+.aud.on{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.rules{border:1.5px solid var(--line); border-radius:.7rem} .rules summary{font-weight:700}
+.note{border-radius:.7rem}
+.field input{border:1.5px solid var(--line); border-radius:.6rem; background:var(--card)}
+
+/* lesson */
+.lbar{flex:1}
+.hearts{gap:.42rem; padding-inline:.2rem}
+.hearts i{width:.62rem; height:.62rem; transform:rotate(45deg); background:var(--red); border-radius:1px; display:block}
+.hearts i.off{background:var(--line)}
+.ask{font-size:1.55rem; line-height:1.25}
+.prompt{border:1.5px solid var(--line); border-radius:.7rem}
+.prompt .big{font-weight:700}
+.choice{border:1.5px solid var(--line); border-bottom-width:1.5px; border-radius:.7rem}
+.choice:active{transform:none; border-bottom-width:1.5px; margin-bottom:0}
+.choice.sel{background:var(--soft); border-color:var(--ink); color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.choice.sel .g,.choice.sel .eth,.choice.sel .ls{color:var(--ink)}
+.tile{border:1.5px solid var(--line); border-bottom-width:1.5px; border-radius:.55rem}
+.tile.used{background:var(--soft); border-color:var(--soft)}
+.tr-forms .tile.cur{background:var(--soft); border-color:var(--ink); color:var(--ink)}
+.answer-line{border-top:1.5px solid var(--line); border-bottom:1.5px solid var(--line)}
+.l-foot{border-top:1.5px solid var(--line)}
+.fb-t{font-size:1.35rem} .fb-t .eth{font-size:1.5rem; font-weight:700} .fb-t small{font-family:"Assistant",sans-serif; font-size:.95rem; font-weight:600; margin-inline-start:.4rem; opacity:.85}
+.pad{border:1.5px solid var(--line); border-radius:.7rem}
+.tip .ex{border-radius:.6rem}
+
+/* end of lesson: the unit's band is woven across once */
+.end h2{color:var(--ink); font-size:2rem; margin-top:1.2rem}
+.end.sad h2{color:var(--red-ink)}
+.end .weave{margin:1.5rem 0 0}
+.end .weave .w1{animation:weft 1.1s ease-out both}
+@keyframes weft{from{clip-path:inset(0 0 0 100%)} to{clip-path:inset(0 0 0 0)}}
+.cards{gap:0; border-top:1.5px solid var(--line); border-bottom:1.5px solid var(--line); margin:1.5rem 0 2rem}
+.scard{border:0; border-radius:0; background:none; padding:.8rem .2rem; border-inline-start:1.5px solid var(--line)}
+.scard:first-child{border-inline-start:0}
+.scard small{color:var(--muted); font-weight:600; font-size:.85rem; padding:0}
+.scard b{background:none; color:var(--ink); border-radius:0; padding:.1rem 0 0; font-size:1.6rem; font-weight:400; font-family:"Suez One","Assistant",serif}
+@media (prefers-reduced-motion:reduce){ .end .weave .w1{animation:none} }
 </style>
 </head>
 <body>
@@ -1290,7 +1431,7 @@ var SITE = [
   ["ጭልፊት","בז"],["ቀበሮ","שועל"],["አንቁራሪት","צפרדע"],["ጉማሬ","היפופוטם"],["የሜዳአህያ","זברה"],["ጅብ","צבוע"],["ነብሮ","פנתר"],
   ["አንበሳ","אריה"],["ዝንጀሮ","קוף"],["አይጥ","עכבר"],["ሰጎን","יען"],["ጉጉት","ינשוף"],["ጃርት","דורבן"],["አውራሪስ","קרנף"],["እባብ","נחש"],
   ["ነብር","נמר, טיגריס"],["ጅግራ","חוגלה (עוף בר)"],["ኤሊ","צב"],["የሌሊትወፍ","עטלף"],["ቢራቢሮ","פרפר"],["ምስጥ","טרמיט"],
-  ["ንብ","דבורה"],["ጉንዳን","נמלה"],["ተርብ","צרעה"],["አንበጣ","חגב, ארבה"],["ጊንጥ","עקרב"],["ወባ","יתוש המלריה (מילולית: מלריה)"],
+  ["ንብ","דבורה"],["ጉንዳን","נמלה"],["ተርብ","צרעה"],["አንበጣ","חגב, ארבה"],["ጊንጥ","עקרב"],["ወባ","מלריה (המחלה)"],
   ["ሸረሪት","עכביש"],["በረሮ","ג'וק"],["ዝምብ","זבוב"]]},
  {id:"s-time", title:"זמן, ימים וחודשים", cards:[
   ["አመት","שנה"],["ወር","חודש"],["ሳምንት","שבוע"],["ቀን","יום"],["ሰዓት","שעה"],["ደቂቃ","דקה"],["ሰከንድ","שנייה"],
@@ -1369,9 +1510,6 @@ SITE.forEach(function(d){
   DECKS.push(d);
 });
 var ALL = [];
-var ICONS = {dialog:"💬",rel1:"🪢",whq:"🕵️",rel2:"🌱",greet:"👋",bye:"🌙",be:"🧍",have:"🎒",intro:"🙋",poss:"🤲",family:"👪",time:"📅",jobs:"💼",desc:"👀",verbs:"🏃",verbsI:"🗣️",conj:"🔁",pres1:"🍽️",pres2:"🪥",demo:"👉",daily:"☀️",obj:"🎁",connect:"🔗",after:"⏭️",whenif:"❔",was:"🕰️",had:"🎒",neg:"🚫",feel1:"😮‍💨",feel2:"🥶",traits:"🧩",verbs2:"🏃‍♂️",obj2:"🎯",conj2:"🎹",past4:"😴",routine1:"🌅",routine2:"📝",past1:"⏪",past2:"🛁",past3:"↩️",pastday:"📓",small:"❓",
-  "s-pron":"👤","s-num":"🔢","s-rel":"👨‍👩‍👧","s-look":"🪞","s-feel":"😊","s-body":"🖐️","s-clothes":"👕","s-colors":"🎨","s-food":"☕","s-fruit":"🍌","s-kitchen":"🍳",
-  "s-home":"🛋️","s-tools":"🔨","s-city":"🏙️","s-nature":"⛰️","s-animals":"🦁","s-time":"⏰","s-jobs":"🩺","s-countries":"🌍","s-verbs1":"🤸","s-verbs2":"✍️"};
 var FID_FILL = {
  "Aman näw?":"አማን ነው?","Alähu":"አለሁ","Mnm al'lm":"ምንም አልልም",
  "Čaw":"ቻው","Mälkam k'än":"መልካም ቀን","Mälkam mšt":"መልካም ምሽት","Dähna wal":"ደህና ዋል","Dähna way":"ደህና ዋይ","Dähna walu":"ደህና ዋሉ",
@@ -1792,7 +1930,8 @@ function buildLetterLesson(only){
 
 /* ---------- lesson engine ---------- */
 var L=null, HEARTS=5;
-var PRAISE=["מעולה!","נכון!","כל הכבוד!","יפה מאוד!","בול!","אלופים!"];
+var GOBEZ='<span class="eth" lang="am">ጎበዝ</span> <small class="lat">gobäz</small>';     // "gobez": the praise word the author grew up with
+var PRAISE=["נכון",GOBEZ,"בדיוק כך","יפה","זהו","מדויק"];
 function startLesson(kind,id){
   var steps, title;
   if (kind==="letters"){ steps=buildLetterLesson(); title="אותיות"; }
@@ -1800,7 +1939,8 @@ function startLesson(kind,id){
   else { var d=getDeck(kind,id); if(!d) return; steps = kind==="deck" ? buildPathLesson(d) : buildWordLesson(d); title=d.title; }
   if (!steps.length) return;
   touched={};
-  L={kind:kind, id:id, title:title, steps:steps, i:0, hearts:HEARTS, right:0, wrong:0, combo:0, phase:"ask", sel:null, ok:null};
+  var ui=5; if (kind==="lset") ui=+id; else if (kind==="deck") chapters().forEach(function(c){ if (c.decks.indexOf(d)>=0) ui=c.i; });
+  L={kind:kind, id:id, title:title, look:unitLook(ui), steps:steps, i:0, hearts:HEARTS, right:0, wrong:0, combo:0, phase:"ask", sel:null, ok:null};
   render(); window.scrollTo(0,0);
 }
 function cur(){ return L.steps[L.i]; }
@@ -2055,10 +2195,67 @@ TIPS.pres2=TIPS.pres1; TIPS.past2=TIPS.past1; TIPS.whq=TIPS.rel1; TIPS.rel2=TIPS
 var TIP=null;
 function viewTip(){
   var t=TIPS[TIP];
-  return '<div class="lesson tip"><div class="l-top"><button class="icon-btn" data-act="tipclose" aria-label="סגירה">✕</button><b style="flex:1">💡 הסבר קצר</b></div>'+
+  return '<div class="lesson tip"><div class="l-top"><button class="icon-btn" data-act="tipclose" aria-label="סגירה">✕</button><b style="flex:1">הסבר קצר</b></div>'+
     '<h2 class="ask">'+t.t+'</h2>'+t.h+'</div>'+
     '<div class="l-foot"><div><button class="btn primary wide" data-act="start:deck:'+TIP+'">הבנתי, לשיעור</button></div></div>';
 }
+
+/* ---------- tibeb bands ----------
+   Each band is redrawn from a real piece: the family coffee set, and the woven and embroidered
+   borders of dresses. Nothing here is a photograph. c = the colour the unit's nodes take. */
+var TB=[
+  { // the coffee set: red almond leaves and a fern with a tulip, gilt rim
+    c:"#D43C28", w:28, d:'<rect width="28" height="20" fill="#FFFFFF"/><rect y="0.6" width="28" height="0.8" fill="#C9A24B"/><rect y="18.6" width="28" height="0.8" fill="#C9A24B"/>'+
+      '<path d="M7 3.6Q11.2 10 7 16.4Q2.8 10 7 3.6z" fill="#E0452F"/>'+
+      '<path d="M21 9.2V16.8M21 12.2 18.3 10.4M21 12.2 23.7 10.4M21 14.4 18.3 12.6M21 14.4 23.7 12.6M21 16.6 18.3 14.8M21 16.6 23.7 14.8" fill="none" stroke="#E0452F" stroke-width="1.15" stroke-linecap="round"/>'+
+      '<path d="M18.5 4Q18.4 8.6 21 8.8Q23.6 8.6 23.5 4L22.3 5.7 21 3.8 19.7 5.7z" fill="none" stroke="#4F9BC4" stroke-width="1" stroke-linejoin="round"/>' },
+  { // a dress neckline: stacked chevrons outlined in black
+    c:"#1F5FBF", w:24, d:'<rect width="24" height="20" fill="#141414"/><rect y="0.7" width="24" height="1" fill="#FFFFFF"/><rect y="18.3" width="24" height="1" fill="#FFFFFF"/>'+
+      '<path d="M0 4.4 12 9.4 24 4.4" fill="none" stroke="#1E9B4B" stroke-width="2.3"/><path d="M0 7.8 12 12.8 24 7.8" fill="none" stroke="#2F7DE1" stroke-width="2.3"/>'+
+      '<path d="M0 11.2 12 16.2 24 11.2" fill="none" stroke="#F28A1E" stroke-width="2.3"/><path d="M0 14.4 12 19.4" fill="none" stroke="#F6C514" stroke-width="0"/>'+
+      '<path d="M12 2.6 14.1 4.8 12 7 9.9 4.8z" fill="#F6C514"/><path d="M0 14.6 2.2 16.4 0 18.2zM24 14.6 21.8 16.4 24 18.2z" fill="#D8322A"/>' },
+  { // green and yellow diamonds stepping in a zigzag on cotton
+    c:"#1E7A45", w:24, d:'<rect width="24" height="20" fill="#FFFDF4"/><rect width="24" height="1.3" fill="#1E2A5A"/><rect y="18.7" width="24" height="1.3" fill="#1E2A5A"/>'+
+      '<path d="M6 2.4 10.6 7 6 11.6 1.4 7zM18 8.4 22.6 13 18 17.6 13.4 13z" fill="#14532D"/><path d="M6 5 8 7 6 9 4 7zM18 11 20 13 18 15 16 13z" fill="#F2D21B"/>'+
+      '<path d="M18 3 20 5 18 7 16 5zM6 13 8 15 6 17 4 15z" fill="#F2D21B" stroke="#14532D" stroke-width="0.8"/>' },
+  { // a turquoise collar with red and blue diamonds
+    c:"#17867B", w:24, d:'<rect width="24" height="20" fill="#7FD6CB"/><rect width="24" height="1.6" fill="#F6C514"/><rect y="18.4" width="24" height="1.6" fill="#F6C514"/>'+
+      '<path d="M6 5 11 10 6 15 1 10z" fill="#D8322A"/><path d="M6 8 8 10 6 12 4 10z" fill="#F6C514"/><path d="M18 5 23 10 18 15 13 10z" fill="#2447B5"/><path d="M18 8 20 10 18 12 16 10z" fill="#FFFFFF"/>' },
+  { // purple with a gold zigzag
+    c:"#6A3FA0", w:24, d:'<rect width="24" height="20" fill="#6A3FA0"/><rect y="0.8" width="24" height="1.1" fill="#E3B02A"/><rect y="18.1" width="24" height="1.1" fill="#E3B02A"/>'+
+      '<path d="M0 14.5 6 6.5 12 14.5 18 6.5 24 14.5" fill="none" stroke="#E3B02A" stroke-width="2.4"/>'+
+      '<path d="M12 4.6 13.7 6.6 12 8.6 10.3 6.6zM0 4.6 1.7 6.6 0 8.6zM24 4.6 22.3 6.6 24 8.6zM6 12.4 7.7 14.4 6 16.4 4.3 14.4zM18 12.4 19.7 14.4 18 16.4 16.3 14.4z" fill="#E3B02A"/>' },
+  { // green cloth dotted with gold, crossed by a dark band
+    c:"#0F7A4A", w:12, d:'<rect width="12" height="20" fill="#0F7A4A"/><rect y="7" width="12" height="8" fill="#17140F"/>'+
+      '<g fill="#E8B923"><circle cx="3" cy="2.2" r="0.9"/><circle cx="9" cy="2.2" r="0.9"/><circle cx="0" cy="4.8" r="0.9"/><circle cx="6" cy="4.8" r="0.9"/><circle cx="12" cy="4.8" r="0.9"/>'+
+      '<circle cx="3" cy="9.4" r="1"/><circle cx="9" cy="9.4" r="1"/><circle cx="0" cy="12.6" r="1"/><circle cx="6" cy="12.6" r="1"/><circle cx="12" cy="12.6" r="1"/>'+
+      '<circle cx="3" cy="17.6" r="0.9"/><circle cx="9" cy="17.6" r="0.9"/></g>' },
+  { // a burgundy check
+    c:"#8A2447", w:24, d:'<rect width="24" height="20" fill="#7A1F3D"/><rect x="5.5" width="1" height="20" fill="#F5E9EC"/><rect x="8" width="0.7" height="20" fill="#7FBF8F"/><rect x="17.5" width="1" height="20" fill="#F2A7B5"/>'+
+      '<rect y="5.5" width="24" height="0.9" fill="#F2A7B5"/><rect y="13.6" width="24" height="1.1" fill="#2B2338"/><rect y="16" width="24" height="0.6" fill="#7FBF8F"/>' }
+];
+var TB_ORDER=[0,3,1,2,4,5,6];     // the band each unit gets, in path order
+(function(){
+  var h=TB.map(function(t,k){ return '<pattern id="tb'+k+'" patternUnits="userSpaceOnUse" width="'+t.w+'" height="20">'+t.d+'</pattern>'; }).join("");
+  var box=document.createElement("div");
+  box.innerHTML='<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>'+h+'</defs></svg>';
+  document.body.insertBefore(box.firstChild, document.body.firstChild);
+})();
+// pct = how much of the band is woven (100 = a plain decorative band)
+function weave(k, pct, h){
+  h=h||14; pct=Math.max(0,Math.min(100,pct));
+  var r='<rect width="4000" height="20" fill="url(#tb'+(k%TB.length)+')" transform="scale('+(h/20)+')"/>';
+  return '<span class="weave" style="--h:'+h+'px">'+(pct<100?'<svg class="w0" aria-hidden="true">'+r+'</svg>':'')+
+    (pct>0?'<svg class="w1" aria-hidden="true"'+(pct<100?' style="clip-path:inset(0 0 0 '+(100-pct)+'%)"':'')+'>'+r+'</svg>':'')+'</span>';
+}
+function unitLook(i){ var k=TB_ORDER[i%TB_ORDER.length]; return {mo:k, c:TB[k].c}; }
+function glyphOf(d){
+  var f=(d.items[0]||{}).fid||"", ch=Array.from(f).filter(function(x){ return !!formOf(x); })[0];
+  return ch ? '<span class="eth" lang="am">'+ch+'</span>' : '<span>'+esc((d.title||"").charAt(0))+'</span>';
+}
+var IC_SOUND='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+var IC_MUTE='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+var IC_MIX='<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 17 7 12 12 7 7zM5.5 11 10 15.5 5.5 20 1 15.5zM18.5 11 23 15.5 18.5 20 14 15.5z" fill="currentColor"/></svg>';
 
 /* ---------- views ---------- */
 var tab="home", openNode=null, resetArmed=false;
@@ -2066,14 +2263,17 @@ var app=document.getElementById("app");
 var XOFF=[0,46,72,46,0,-46,-72,-46];
 
 function topbar(){
-  return '<div class="top"><div class="stat fire" title="ימים ברצף"><span>🔥</span><b>'+liveStreak()+'</b></div>'+
-    '<div class="stat xp" title="נקודות"><span>⚡</span><b>'+state.xp+'</b><small>XP</small></div><div class="grow"></div>'+
-    '<button class="icon-btn" data-act="mute" aria-label="'+(state.mute?"הפעלת צליל":"השתקת צליל")+'">'+(state.mute?"🔇":"🔊")+'</button></div>';
+  var sk=liveStreak();
+  return '<div class="top"><div class="brand"><span>אלף-ביתא</span><small>למידת אמהרית</small></div><div class="grow"></div>'+
+    '<div class="stat fire"><span>רצף</span><b>'+sk+'</b><span>'+(sk===1?"יום":"ימים")+'</span></div>'+
+    '<div class="stat xp"><b>'+state.xp+'</b><span>XP</span></div>'+
+    '<button class="icon-btn" data-act="mute" aria-label="'+(state.mute?"הפעלת צליל":"השתקת צליל")+'">'+(state.mute?IC_MUTE:IC_SOUND)+'</button></div>'+
+    '<div class="hem">'+weave(1,100,10)+'</div>';
 }
 function nav(){
-  var it=[["home","🏠","מסלול"],["letters",'<span class="eth" lang="am">ፊ</span>',"אותיות"],["words","✏️","המילים שלי"]];
+  var it=[["home","","מסלול"],["letters","","אותיות"],["words","","המילים שלי"]];
   return '<nav class="nav"><div>'+it.map(function(x){
-    return '<button data-act="tab:'+x[0]+'"'+(tab===x[0]?' aria-current="page"':'')+'><span>'+x[1]+'</span>'+x[2]+'</button>'; }).join("")+'</div></nav>';
+    return '<button data-act="tab:'+x[0]+'"'+(tab===x[0]?' aria-current="page"':'')+'>'+x[2]+'</button>'; }).join("")+'</div></nav>';
 }
 function greet(){
   var s=liveStreak(), tx=todayXp();
@@ -2085,9 +2285,10 @@ function greet(){
 function nodeHTML(id, icon, label, m, idx, startAct, sub){
   var pct = m.n ? m.seen/m.n : 0, C=251.3, gold = m.n && m.ok===m.n;
   var h='<li><div class="nodebox" style="--x:'+XOFF[idx%XOFF.length]+'px"><button class="node'+(gold?' gold':'')+'" data-act="node:'+id+'" aria-expanded="'+(openNode===id)+'" aria-label="'+esc(label)+'">'+
-    '<svg class="ring" viewBox="0 0 88 88"><circle class="tr" cx="44" cy="44" r="40"/><circle class="pr" cx="44" cy="44" r="40" stroke-dasharray="'+(pct*C).toFixed(1)+' '+C+'"/></svg>'+
-    '<span class="disc">'+(gold?"⭐":icon)+'</span></button><div class="nlabel">'+esc(label)+'</div></div>';
-  if (openNode===id) h+='<div class="callout"><h3>'+esc(label)+'</h3><p>'+sub+'</p><button class="btn wide" data-act="'+startAct+'">התחלה · 10+ XP</button>'+(TIPS[id]?'<button class="tipb" data-act="tip:'+id+'">💡 הסבר קצר דרך העברית</button>':'')+'</div>';
+    '<svg class="ring" viewBox="0 0 88 88" aria-hidden="true"><rect class="tr" x="16" y="16" width="56" height="56" rx="8" transform="rotate(45 44 44)"/>'+
+    (pct>0?'<rect class="pr" x="16" y="16" width="56" height="56" rx="8" transform="rotate(45 44 44)" pathLength="100" stroke-dasharray="'+(pct*100).toFixed(1)+' 100"/>':'')+'</svg>'+
+    '<span class="disc">'+icon+'</span></button><div class="nlabel">'+esc(label)+'</div></div>';
+  if (openNode===id) h+='<div class="callout"><h3>'+esc(label)+'</h3><p>'+sub+'</p><button class="btn wide" data-act="'+startAct+'">התחלה</button>'+(TIPS[id]?'<button class="tipb" data-act="tip:'+id+'">הסבר קצר דרך העברית</button>':'')+'</div>';
   return h+'</li>';
 }
 /* The path: parts > units > topics > steps. A unit is folded into one row so the home screen stays short;
@@ -2161,45 +2362,45 @@ function nextDeck(){
 function shownCh(){ if (openCh!==null) return openCh; var nx=nextDeck(); return nx ? nx.ch : -1; }
 function stepLine(d){
   var S=stepsOf(d), k=curStep(d);
-  return S.length<2 ? "" : k<0 ? " · כל "+S.length+" השלבים נלמדו" : " · שלב "+(k+1)+" מתוך "+S.length;
+  return S.length<2 ? "" : k<0 ? ". כל "+S.length+" השלבים נלמדו" : ". שלב "+(k+1)+" מתוך "+S.length;
 }
 function chapterHTML(c, open){
-  var m=mastery(c.items), pct=m.n?Math.round(100*m.seen/m.n):0, done=m.n && m.seen===m.n;
-  var h='<button class="chap" data-act="chap:'+c.i+'" id="ch-'+c.i+'" aria-expanded="'+open+'"><span class="ci"><small>יחידה '+(c.i+1)+' · '+c.decks.length+' נושאים'+(c.letters.length?' · '+c.letters.length+' אותיות':'')+'</small><b>'+(done?"⭐ ":"")+esc(c.t)+'</b>'+
-    '<span class="bar"><i style="width:'+pct+'%"></i></span></span><span class="chev" aria-hidden="true">'+(open?"▲":"▼")+'</span></button>';
+  var m=mastery(c.items), pct=m.n?Math.round(100*m.seen/m.n):0, done=m.n && m.seen===m.n, lk=unitLook(c.i);
+  var h='<button class="chap" data-act="chap:'+c.i+'" id="ch-'+c.i+'" aria-expanded="'+open+'" style="--c:'+lk.c+'"><span class="ci"><small><span>יחידה '+(c.i+1)+'</span><span>'+(done?'הושלמה':c.decks.length+' נושאים'+(c.letters.length?' ו-'+c.letters.length+' אותיות':''))+'</span></small><b>'+esc(c.t)+'</b>'+
+    weave(lk.mo, pct, 22)+'</span><span class="chev" aria-hidden="true">'+(open?"\u25B2\uFE0E":"\u25BC\uFE0E")+'</span></button>';
   if (!open) return h;
-  h+='<ol class="path">';
+  h+='<ol class="path" style="--c:'+lk.c+'">';
   var k=0;
   if (c.forms.length){
     var lm=mastery(c.forms);
-    h+=nodeHTML("let-"+c.i, '<span class="eth" lang="am">'+c.letters[0]+'</span>', "אותיות: "+c.letters.join(" "), lm, k++, "start:lset:"+c.i, c.letters.length+" אותיות בשבע הצורות שלהן · "+lm.seen+" מתוך "+lm.n+" צורות נלמדו");
+    h+=nodeHTML("let-"+c.i, '<span class="eth" lang="am">'+c.letters[0]+'</span>', "אותיות: "+c.letters.join(" "), lm, k++, "start:lset:"+c.i, c.letters.length+" אותיות בשבע הצורות שלהן. "+lm.seen+" מתוך "+lm.n+" צורות נלמדו");
   }
   c.decks.forEach(function(d){
     var dm=mastery(d.items);
-    h+=nodeHTML(d.id, ICONS[d.id]||"📘", d.title, dm, k++, "start:deck:"+d.id, dm.n+" מילים · "+dm.seen+" נלמדו"+stepLine(d)+(dm.due?" · "+dm.due+" לחזרה היום":""));
+    h+=nodeHTML(d.id, glyphOf(d), d.title, dm, k++, "start:deck:"+d.id, dm.n+" מילים, "+dm.seen+" נלמדו"+stepLine(d)+(dm.due?". "+dm.due+" לחזרה היום":""));
   });
   return h+'</ol>';
 }
 function unit(n, title, sub, color, mixId){
   var cur=shownCh(), all=[];
-  var h='<section class="unit" style="--c:var(--'+color+');--cs:var(--'+color+'-d)"><div class="unit-h"><small>חלק '+n+'</small><h2>'+title+'</h2><p>'+sub+'</p></div>';
+  var h='<section class="unit"><div class="unit-h"><small>חלק '+n+'</small><h2>'+title+'</h2><p>'+sub+'</p></div>';
   chapters().forEach(function(c){ if (c.part!==n) return; all=all.concat(c.items); h+=chapterHTML(c, c.i===cur); });
-  h+='<ol class="path">'+nodeHTML("mix-"+mixId, "🏋️", "תרגול מעורב", mastery(all), 0, "start:mix:"+mixId, "שאלות מכל הנושאים בחלק הזה")+'</ol>';
+  h+='<ol class="path" style="--c:#4C2A85">'+nodeHTML("mix-"+mixId, IC_MIX, "תרגול מעורב", mastery(all), 0, "start:mix:"+mixId, "שאלות מכל הנושאים בחלק הזה")+'</ol>';
   return h+'</section>';
 }
 function continueCard(){
   var nx=nextDeck(); if (!nx) return "";
-  return '<button class="btn primary wide go" data-act="start:deck:'+nx.deck.id+'"><span>▶ המשך</span><small>'+esc(nx.deck.title)+'</small></button>';
+  return '<button class="btn primary wide go" data-act="start:deck:'+nx.deck.id+'"><span>המשך</span><small>'+esc(nx.deck.title)+'</small></button>';
 }
 function reviewCard(){
   var n=dueWords().length;
   var txt = n>=4 ? n+" מילים מחכות לחזרה היום" : n ? n+" מילים לחזרה. הן יופיעו ראשונות בשיעור של הנושא שלהן" : "אין חזרות להיום. מילים שנלמדו יחזרו לכאן בדיוק כשצריך לרענן אותן";
-  return '<div class="review"><div><b>🔁 חזרה יומית</b><span>'+txt+'</span></div>'+(n>=4?'<button class="btn blue" data-act="start:review">חזרה</button>':'')+'</div>';
+  return '<div class="review"><div><b>חזרה יומית</b><span>'+txt+'</span></div>'+(n>=4?'<button class="btn blue" data-act="start:review">חזרה</button>':'')+'</div>';
 }
 function viewHome(){
   var tx=todayXp(), pct=Math.min(100,Math.round(100*tx/GOAL));
   return '<div class="hello">'+mascot("happy",78)+'<div class="bubble">'+greet()+'</div></div>'+
-    '<div class="goal"><div class="goal-t"><span>היעד היומי</span><span>'+tx+' מתוך '+GOAL+' XP</span></div><div class="bar gold"><i style="width:'+pct+'%"></i></div></div>'+continueCard()+reviewCard()+
+    '<div class="goal"><div class="goal-t"><span>היעד היומי</span><span>'+tx+' מתוך '+GOAL+' XP</span></div>'+weave(4,pct,10)+'</div>'+continueCard()+reviewCard()+
     unit(1,"יסודות השיחה","מהשלום הראשון ועד שיחה שלמה","green","t")+
     unit(2,"אוצר מילים","עוד מילים שימושיות, לפי נושאים","blue","s")+
     '<div class="foot"><span id="sync">'+esc(syncText)+'</span><button data-act="reset">'+(resetArmed?"לחיצה נוספת תאפס את ההתקדמות (המילים האישיות נשארות)":"איפוס התקדמות")+'</button></div>';
@@ -2240,12 +2441,12 @@ function playAudio(key){
 function audBtn(key,label){
   if (!(window.FIDEL_AUDIO||{})[key]) return "";
   var on = playing && playing.key===key;
-  return '<button class="aud'+(on?' on':'')+'" data-act="aud:'+key+'">'+(on?"⏹ עצירה":"▶ "+label)+'</button>';
+  return '<button class="aud'+(on?' on':'')+'" data-act="aud:'+key+'">'+(on?"עצירה":"\u25B6\uFE0E "+label)+'</button>';
 }
 function viewLetters(){
   var P=pool(), m=mastery(P);
   var h='<h1 class="title">אותיות</h1><p class="sub">'+state.letters.length+' אותיות בתרגול, '+m.ok+' מתוך '+m.n+' צורות כבר יושבות טוב'+(m.due?', '+m.due+' מחכות לחזרה':'')+'.</p>'+
-    '<button class="btn primary wide" data-act="start:letters"'+(P.length?'':' disabled')+'>תרגול אותיות · 10+ XP</button>'+
+    '<button class="btn primary wide" data-act="start:letters"'+(P.length?'':' disabled')+'>תרגול אותיות</button>'+
     '<div class="note">האותיות מחולקות לארבע קבוצות לפי הצורה שלהן. סמנו ✓ ליד כל אות שכבר למדתם, ורק היא תיכנס לתרגול. לחיצה על צורה פותחת תרגול כתיבה.</div>'+
     '<details class="rules"><summary>איך מזהים את שבע הצורות?</summary><p>כל אות מופיעה בשבע צורות, אחת לכל תנועה: ä, u, i, a, e, ï, o. באותיות עם שתי רגליים ועם שלוש רגליים השינוי עקבי:</p><ol>'+
     RULES.map(function(r){ return '<li>'+r+'</li>'; }).join("")+'</ol>'+audBtn("vow","האזנה לשבע התנועות")+'</details>'+
@@ -2272,7 +2473,7 @@ function viewWords(){
     '<label class="field"><span>באמהרית</span><input id="wa" autocomplete="off" dir="auto"></label>'+
     '<label class="field"><span>בעברית</span><input id="wh" autocomplete="off"></label>'+
     '<div class="row"><button class="btn blue" data-act="addword">הוספת מילה</button>'+
-    '<button class="btn primary" data-act="start:own"'+(n>=4?'':' disabled')+'>תרגול · 10+ XP</button></div>';
+    '<button class="btn primary" data-act="start:own"'+(n>=4?'':' disabled')+'>תרגול</button></div>';
   if (n<4) h+='<p class="sub" style="margin-top:1rem">'+(n?'יש כאן '+n+' מילים. ':'')+'צריך לפחות 4 מילים כדי להתחיל תרגול.</p>';
   if (n) h+='<ul class="words">'+state.words.slice().reverse().map(function(w){
       return '<li><div class="pair"><div class="am">'+esc(w.a)+'</div><div class="he">'+esc(w.h)+'</div></div><button data-act="del:'+esc(w.id)+'">מחיקה</button></li>'; }).join("")+'</ul>';
@@ -2295,18 +2496,13 @@ function tileHTML(st,w){
   }
   return st.fidel ? '<span class="eth" lang="am">'+esc(w)+'</span><span class="lat">'+esc(WORD_LAT[w]||tr(w))+'</span>' : '<span class="lat">'+esc(w)+'</span>';
 }
-function confetti(){
-  var cols=["var(--green)","var(--gold)","var(--red)","var(--blue)","var(--orange)"], h='<div class="confetti">';
-  for (var i=0;i<36;i++) h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+cols[i%cols.length]+';animation-delay:'+(Math.random()*0.9).toFixed(2)+'s;animation-duration:'+(2+Math.random()*1.4).toFixed(2)+'s"></i>';
-  return h+'</div>';
-}
 function viewLesson(){
   if (L.done){
     var acc=Math.round(100*L.right/Math.max(1,L.right+L.wrong));
-    return '<div class="end">'+confetti()+mascot("happy",130,"bounce")+'<h2>השיעור הושלם!</h2><p>'+(L.wrong===0?"בלי אף טעות. בונוס של 5 XP!":esc(L.title))+'</p>'+
-      '<div class="cards"><div class="scard" style="--c:var(--gold-d)"><small>נקודות</small><b>⚡ '+L.gain+'</b></div>'+
-      '<div class="scard" style="--c:var(--green)"><small>דיוק</small><b>🎯 '+acc+'%</b></div>'+
-      '<div class="scard" style="--c:var(--orange)"><small>רצף ימים</small><b>🔥 '+liveStreak()+'</b></div></div>'+
+    return '<div class="end">'+mascot("happy",120)+'<h2>השיעור הושלם</h2><p>'+(L.wrong===0?"בלי אף טעות. בונוס של 5 XP.":esc(L.title))+'</p>'+weave(L.look.mo,100,40)+
+      '<div class="cards"><div class="scard"><small>נקודות</small><b>'+L.gain+'</b></div>'+
+      '<div class="scard"><small>דיוק</small><b>'+acc+'%</b></div>'+
+      '<div class="scard"><small>רצף ימים</small><b>'+liveStreak()+'</b></div></div>'+
       '<button class="btn primary wide" data-act="quit">המשך</button></div>';
   }
   if (L.failed){
@@ -2315,8 +2511,8 @@ function viewLesson(){
   }
   var st=cur(), fb=L.phase==="fb", pct=Math.round(100*(L.i+(fb?1:0))/L.steps.length);
   var h='<div class="lesson"><div class="l-top"><button class="icon-btn" data-act="quit" aria-label="יציאה מהשיעור">✕</button>'+
-    '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div>'+
-    '<div class="hearts" aria-label="לבבות">❤️ <b>'+L.hearts+'</b></div></div><h2 class="ask">'+st.ask+'</h2>';
+    '<div class="lbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+weave(L.look.mo,pct,14)+'</div>'+
+    '<div class="hearts" role="img" aria-label="נשארו '+L.hearts+' מתוך '+HEARTS+' לבבות">'+[0,1,2,3,4].map(function(i){ return '<i'+(i<L.hearts?'':' class="off"')+'></i>'; }).join("")+'</div></div><h2 class="ask">'+st.ask+'</h2>';
   var ready=false;
   if (st.t==="mc"){
     h+='<div class="prompt">'+st.prompt+'</div><div class="choices'+(st.cols===2?' two':'')+'">'+st.opts.map(function(o,i){
@@ -2342,7 +2538,7 @@ function viewLesson(){
   if (!fb){
     h+='<div class="l-foot"><div>'+(st.t==="match" ? '<p class="hint">בוחרים פריט מכל עמודה</p>' : '<button class="btn primary wide" data-act="check"'+(ready?'':' disabled')+'>בדיקה</button>')+'</div></div>';
   } else if (L.ok){
-    var title = (L.combo===3||L.combo===5||L.combo===8) ? "🔥 "+L.combo+" ברצף!" : PRAISE[L.i%PRAISE.length];
+    var title = (L.combo===3||L.combo===5||L.combo===8) ? GOBEZ+'<small>'+L.combo+' ברצף</small>' : PRAISE[L.i%PRAISE.length];
     h+='<div class="l-foot ok"><div><div class="fb-t">'+title+'</div>'+(st.answerHTML?'<div class="fb-a">'+st.answerHTML+'</div>':'<div class="fb-a"></div>')+'<button class="btn primary wide" data-act="cont">המשך</button></div></div>';
   } else {
     h+='<div class="l-foot no"><div><div class="fb-t">התשובה הנכונה:</div><div class="fb-a">'+st.answerHTML+'</div><button class="btn bad wide" data-act="cont">המשך</button></div></div>';
