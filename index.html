@@ -381,6 +381,16 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .pad{border:1.5px solid var(--line); border-radius:.7rem}
 .tip .ex{border-radius:.6rem}
 
+/* teaching screens */
+.lead{color:var(--muted); margin:0 0 1rem}
+.meet{display:grid; gap:.6rem}
+.meet .mrow{display:flex; flex-direction:column; gap:.05rem; border:1.5px solid var(--line); border-radius:.7rem; padding:.7rem 1rem; background:var(--card)}
+.meet .mrow .eth{font-size:1.6rem; font-weight:700; line-height:1.4; align-self:flex-start}
+.meet .mrow .lat{color:var(--muted); align-self:flex-start} .meet .mrow .he{font-weight:700; margin-top:.2rem}
+.lforms{border-top:1.5px solid var(--line)}
+.lforms .frow{display:grid; grid-template-columns:2.8rem 3.4rem 2.4rem 1fr; align-items:center; column-gap:.7rem; padding:.3rem .2rem; border-bottom:1.5px solid var(--line)}
+.frow .eth{font-size:1.9rem; font-weight:700; line-height:1.3} .frow .hs{font-size:1.45rem; font-weight:700} .frow .lat{color:var(--muted)} .frow .rule{color:var(--muted); font-size:.9rem; line-height:1.3}
+.lesson .gacts{margin-top:1rem}
 /* end of lesson: the unit's band is woven across once */
 .end h2{color:var(--ink); font-size:2rem; margin-top:1.2rem}
 .end.sad h2{color:var(--red-ink)}
@@ -1845,26 +1855,69 @@ function buildWordLesson(deck){
   }
   return interleave(mcs, matches);
 }
+/* teaching screens: shown before the questions, never graded */
+function meetWords(items){
+  return {t:"learn", ask: items.length>1 ? "מילים חדשות" : "מילה חדשה",
+    html:'<p class="lead">קראו בקול, ואז נתרגל.</p><div class="meet">'+items.map(function(c){
+      return '<div class="mrow">'+(c.fid?'<span class="eth" lang="am">'+esc(c.fid)+'</span>':'')+'<span class="lat">'+esc(c.lat)+'</span><span class="he">'+esc(c.he)+'</span></div>'; }).join("")+'</div>'};
+}
+function meetLetter(Lt){
+  var G=groupOf(Lt.id), rules=G && (G.k==="g2"||G.k==="g3"), w=EXWORD[Lt.id];
+  return {t:"learn", ask:'האות <span class="eth" lang="am">'+Lt.id+'</span> בשבע הצורות שלה', aud:G?G.k:null,
+    html:'<p class="lead">באמהרית כל אות היא הברה: עיצור ותנועה יחד. לכל עיצור יש שבע צורות, אחת לכל תנועה.</p>'+
+      '<div class="lforms">'+Lt.forms.map(function(f){
+        return '<div class="frow"><span class="eth" lang="am">'+f.g+'</span><span class="hs">'+f.heb+'</span><span class="lat">'+esc(f.lat)+'</span><span class="rule">'+(rules?RULES[f.o]:"")+'</span></div>'; }).join("")+'</div>'+
+      (w?'<p class="lead" style="margin-top:1rem">מילה לדוגמה: <b class="eth" lang="am">'+w[0]+'</b> <span class="lat">'+w[1]+'</span> - '+w[2]+'</p>':'')};
+}
+/* a letter lesson inside a unit: one new letter at a time, taught first, then practised with the letters before it */
+function buildLetterSetLesson(u){
+  var Ls=u.letters.map(function(id){ return BY_ID[id]; }).filter(Boolean), k=-1;
+  for (var i=0;i<Ls.length && k<0;i++) if (Ls[i].forms.some(function(f){ return strength(f.g)<1; })) k=i;
+  if (k<0) return buildLetterLesson(u.forms);
+  var Lt=Ls[k], P=[], old=[]; Ls.slice(0,k+1).forEach(function(x){ P=P.concat(x.forms); }); Ls.slice(0,k).forEach(function(x){ old=old.concat(x.forms); });
+  var dr=drawer(Lt.forms), qs=[], canRead=P.length>=14;
+  while (dr.left() && qs.length<6) qs.push(letterMC(dr.draw(), P, canRead));
+  var rv=drawer(old); for (var r=0;r<2 && rv.left();r++) qs.splice(2+r*3,0,letterMC(rv.draw(), P, canRead));
+  var four=function(src){ var set=[], sk={}; shuffle(src.slice()).forEach(function(f){ if(set.length<4 && !sk[f.key]){ sk[f.key]=1; set.push(f); } }); return set.length===4 ? set : null; };
+  var m1=four(Lt.forms), m2=old.length ? four(P) : null, steps=[meetLetter(Lt)];
+  qs.forEach(function(q,i2){ steps.push(q); if (i2===2 && m1) steps.push(letterMatch(m1)); });
+  if (m2) steps.push(letterMatch(m2));
+  return steps;
+}
+function letterLine(u){
+  var Ls=u.letters.map(function(id){ return BY_ID[id]; }).filter(Boolean);
+  for (var i=0;i<Ls.length;i++) if (Ls[i].forms.some(function(f){ return strength(f.g)<1; })) return "האות הבאה: "+Ls[i].id+" ("+(i+1)+" מתוך "+Ls.length+")";
+  return "כל האותיות נלמדו";
+}
 /* a lesson on the path: the current step of the topic, plus words met earlier in the path */
 function buildPathLesson(deck){
   var k=curStep(deck), S = k<0 ? deck.items : stepsOf(deck)[k];
   var dr=drawer(S); if (dr.left()<4) return buildWordLesson(deck);
-  var used={}, mcs=[], matches=[];
+  var used={};
   var ask=function(t){ used[t.g]=1; return spellable(t) && Math.random()<0.3 ? wordSpell(t) : buildable(t) && Math.random()<0.5 ? wordBuild(t) : wordMC(t); };
-  var nMC=Math.min(6,dr.left());
-  for (var i=0;i<nMC;i++) mcs.push(ask(dr.draw()));
+  var nMC=Math.min(6,dr.left()), T=[];
+  for (var i=0;i<nMC;i++) T.push(dr.draw());
+  T.forEach(function(t){ used[t.g]=1; });
   var old=earlierSeen(deck,k), due=old.filter(function(x){ return isDue(x.g); }).sort(function(a,b){ return (state.due[a.g]||0)-(state.due[b.g]||0); });
   var rv=due.concat(shuffle(old.filter(function(x){ return !isDue(x.g); }))).filter(function(x){ return !used[x.g]; });
-  [2,5].forEach(function(pos){ if (rv.length) mcs.splice(Math.min(pos,mcs.length),0,ask(rv.shift())); });
   var four=function(sources){
     var set=[], sh={}, sl={};
     sources.forEach(function(src){ src.forEach(function(c){ if(set.length<4 && !sh[c.he] && !sl[c.lat]){ sh[c.he]=1; sl[c.lat]=1; set.push(c); } }); });
     return set.length===4 ? set : null;
   };
   var left=[]; while (dr.left()) left.push(dr.draw());
-  var m1=four([left, shuffle(S.slice())]); if (m1) matches.push(wordMatch(m1));
-  var m2=four([rv]) || four([shuffle(S.slice())]); if (m2) matches.push(wordMatch(m2));
-  return interleave(mcs, matches);
+  var m1=four([left, shuffle(S.slice())]);
+  var r1=rv.length?rv.shift():null, r2=rv.length?rv.shift():null, m2=four([rv]) || four([shuffle(S.slice())]);
+  // order: teach, ask, teach, ask - a word is never asked before it was shown
+  var steps=[], met={}, half=Math.ceil(T.length/2);
+  var teach=function(items){ var nw=items.filter(function(c){ return isNew(c.g) && !met[c.g]; }); nw.forEach(function(c){ met[c.g]=1; }); if (nw.length) steps.push(meetWords(nw)); };
+  var A=T.slice(0,half), B=T.slice(half);
+  teach(A); A.forEach(function(t){ steps.push(ask(t)); }); if (r1) steps.push(ask(r1));
+  teach(B); B.forEach(function(t){ steps.push(ask(t)); });
+  if (m1){ teach(m1); steps.push(wordMatch(m1)); }
+  if (r2) steps.push(ask(r2));
+  if (m2){ teach(m2); steps.push(wordMatch(m2)); }
+  return steps;
 }
 function distract(ans, P){
   var cand = P.filter(function(x){return x.key!==ans.key;});
@@ -1934,7 +1987,7 @@ var PRAISE=["נכון",GOBEZ,"בדיוק כך","יפה","זהו","מדויק"];
 function startLesson(kind,id){
   var steps, title;
   if (kind==="letters"){ steps=buildLetterLesson(); title="אותיות"; }
-  else if (kind==="lset"){ var u=chapters()[+id]; if(!u || !u.forms.length) return; steps=buildLetterLesson(u.forms); title="אותיות"; }
+  else if (kind==="lset"){ var u=chapters()[+id]; if(!u || !u.forms.length) return; steps=buildLetterSetLesson(u); title="אותיות"; }
   else { var d=getDeck(kind,id); if(!d) return; steps = kind==="deck" ? buildPathLesson(d) : buildWordLesson(d); title=d.title; }
   if (!steps.length) return;
   touched={};
@@ -1981,6 +2034,12 @@ function matchTap(side,id){
     st.selL=null; st.selR=null;
   }
   render();
+}
+function learned(){
+  if (!L || L.done || L.failed || cur().t!=="learn") return;
+  stopAudio(); L.i++;
+  if (L.i>=L.steps.length) return finish();
+  L.phase="ask"; L.sel=null; L.ok=null; render(); window.scrollTo(0,0);
 }
 function cont(){
   if (!L || L.phase!=="fb") return;
@@ -2372,7 +2431,7 @@ function chapterHTML(c, open){
   var k=0;
   if (c.forms.length){
     var lm=mastery(c.forms);
-    h+=nodeHTML("let-"+c.i, '<span class="eth" lang="am">'+c.letters[0]+'</span>', "אותיות: "+c.letters.join(" "), lm, k++, "start:lset:"+c.i, c.letters.length+" אותיות בשבע הצורות שלהן. "+lm.seen+" מתוך "+lm.n+" צורות נלמדו");
+    h+=nodeHTML("let-"+c.i, '<span class="eth" lang="am">'+c.letters[0]+'</span>', "אותיות: "+c.letters.join(" "), lm, k++, "start:lset:"+c.i, "כל אות נלמדת בנפרד, בשבע הצורות שלה. "+letterLine(c));
   }
   c.decks.forEach(function(d){
     var dm=mastery(d.items);
@@ -2424,7 +2483,7 @@ function playAudio(key){
   var b64=(window.FIDEL_AUDIO||{})[key]; if(!b64) return;
   if (/\.(mp3|m4a|ogg|wav)$/i.test(b64)){      // a file next to the page (the stand-alone site) instead of embedded data
     var el=new Audio(b64), me={key:key, src:{onended:null, stop:function(){ el.pause(); }}};
-    var over=function(){ if(playing===me){ playing=null; if(!L&&!TR&&!TIP) render(); } };
+    var over=function(){ if(playing===me){ playing=null; if(!TR&&!TIP&&(!L||(!L.done&&!L.failed&&cur().t==="learn"))) render(); } };
     el.onended=over; el.onerror=over;
     playing=me; render();
     var pp=el.play(); if (pp && pp.catch) pp.catch(over);
@@ -2438,7 +2497,7 @@ function playAudio(key){
     var done=function(ab){
       if (playing!==mine) return;
       var src=actx.createBufferSource(); src.buffer=ab; src.connect(actx.destination);
-      src.onended=function(){ if(playing===mine){ playing=null; if(!L&&!TR&&!TIP) render(); } };
+      src.onended=function(){ if(playing===mine){ playing=null; if(!TR&&!TIP&&(!L||(!L.done&&!L.failed&&cur().t==="learn"))) render(); } };
       mine.src=src; src.start();
     };
     var fail=function(){ if(playing===mine){ playing=null; render(); } };
@@ -2521,6 +2580,10 @@ function viewLesson(){
     '<div class="lbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+weave(L.look.mo,pct,14)+'</div>'+
     '<div class="hearts" role="img" aria-label="נשארו '+L.hearts+' מתוך '+HEARTS+' לבבות">'+[0,1,2,3,4].map(function(i){ return '<i'+(i<L.hearts?'':' class="off"')+'></i>'; }).join("")+'</div></div><h2 class="ask">'+st.ask+'</h2>';
   var ready=false;
+  if (st.t==="learn"){
+    return h+st.html+(st.aud?'<div class="gacts">'+audBtn(st.aud,"האזנה לצורה הראשונה של אותיות הקבוצה")+'</div>':'')+
+      '</div><div class="l-foot"><div><button class="btn primary wide" data-act="learned">הבנתי, לתרגול</button></div></div>';
+  }
   if (st.t==="mc"){
     h+='<div class="prompt">'+st.prompt+'</div><div class="choices'+(st.cols===2?' two':'')+'">'+st.opts.map(function(o,i){
       var cls="choice";
@@ -2580,8 +2643,9 @@ app.addEventListener("click", function(e){
     case "ml": matchTap("l",+v); break;
     case "mr": matchTap("r",+v); break;
     case "check": check(); break;
+    case "learned": learned(); break;
     case "cont": cont(); break;
-    case "quit": quit(); break;
+    case "quit": stopAudio(); quit(); break;
     case "retry": startLesson(L.kind, L.id); break;
     case "trace": stopAudio(); openTracer(v); break;
     case "aud": playAudio(v); break;
@@ -2611,7 +2675,7 @@ app.addEventListener("keydown", function(e){
 document.addEventListener("keydown", function(e){
   if (!L || L.done || L.failed) return;
   if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-  if (e.key==="Enter"){ e.preventDefault(); if (L.phase==="fb") cont(); else check(); return; }
+  if (e.key==="Enter"){ e.preventDefault(); if (cur().t==="learn") learned(); else if (L.phase==="fb") cont(); else check(); return; }
   if (L.phase==="ask" && cur().t==="mc" && /^[1-4]$/.test(e.key)){ var n=+e.key-1; if(n<cur().opts.length) selectOpt(n); }
 });
 
