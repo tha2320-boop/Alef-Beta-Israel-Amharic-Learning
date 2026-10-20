@@ -1,8 +1,7 @@
 /* Alef-Beta Israel - the app. Content lives in data/*.js, recordings in audio/. */
 (function(){
 "use strict";
-var A = window.ALEF || {};                         // content, from data/*.js
-var LETTERS_ONLY = window.ALEF_PAGE === "letters";  // letters.html: the letters tab on its own
+var A = window.ALEF || {};   // content, from data/*.js
 /* ---------- the fidel ---------- */
 var V_LAT = ["ä","u","i","a","e","ï","o"];
 // [mark that sits on the consonant, letters that follow it]
@@ -750,20 +749,19 @@ var IC_MUTE='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
 var IC_MIX='<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 17 7 12 12 7 7zM5.5 11 10 15.5 5.5 20 1 15.5zM18.5 11 23 15.5 18.5 20 14 15.5z" fill="currentColor"/></svg>';
 
 /* ---------- views ---------- */
-var tab=LETTERS_ONLY?"letters":"home", openNode=null, resetArmed=false;
+var tab="home", openNode=null, resetArmed=false;
 var app=document.getElementById("app");
 var XOFF=[0,46,72,46,0,-46,-72,-46];
 
 function topbar(){
   var sk=liveStreak();
-  return '<div class="top"><div class="brand"><span>אלף-ביתא ישראל</span><small>'+(LETTERS_ONLY?"האותיות באמהרית":"למידת אמהרית")+'</small></div><div class="grow"></div>'+
+  return '<div class="top"><div class="brand"><span>אלף-ביתא ישראל</span><small>למידת אמהרית</small></div><div class="grow"></div>'+
     '<div class="stat fire" title="ימים ברצף"><span>רצף</span><b>'+sk+'</b><span class="days">'+(sk===1?"יום":"ימים")+'</span></div>'+
     '<div class="stat xp"><b>'+state.xp+'</b><span>XP</span></div>'+
     '<button class="icon-btn" data-act="mute" aria-label="'+(state.mute?"הפעלת צליל":"השתקת צליל")+'">'+(state.mute?IC_MUTE:IC_SOUND)+'</button></div>'+
     '<div class="hem">'+weave(1,100,10)+'</div>';
 }
 function nav(){
-  if (LETTERS_ONLY) return "";
   var it=[["home","","מסלול"],["letters","","אותיות"],["words","","המילים שלי"]];
   return '<nav class="nav"><div>'+it.map(function(x){
     return '<button data-act="tab:'+x[0]+'"'+(tab===x[0]?' aria-current="page"':'')+'>'+x[2]+'</button>'; }).join("")+'</div></nav>';
@@ -940,7 +938,6 @@ function playAudio(key){
   } catch(e){ playing=null; }
 }
 function audBtn(key,label){
-  if (LETTERS_ONLY) return "";
   if (!(window.FIDEL_AUDIO||{})[key]) return "";
   var on = playing && playing.key===key;
   return '<button class="aud'+(on?' on':'')+'" data-act="aud:'+key+'">'+(on?"עצירה":"\u25B6\uFE0E "+label)+'</button>';

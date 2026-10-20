@@ -72,21 +72,6 @@ console.log("index.html");
   await page.close();
 }
 
-console.log("letters.html");
-{
-  const { page, errors } = await open("letters.html");
-  ok((await page.textContent(".title")) === "אותיות", "opens on the letters");
-  ok((await page.$$(".nav button")).length === 0, "has no bottom navigation");
-  ok((await page.$$('[data-act^="aud:"]')).length === 0, "has no listening buttons");
-  await page.click(".cell");
-  ok(!!(await page.$("#trfg")), "the writing studio opens");
-  await page.click('[data-act="trclose"]');
-  await page.click('[data-act="start:letters"]');
-  ok(await playLesson(page), "a letters lesson runs to the end");
-  ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors[0] : ""));
-  await page.close();
-}
-
 console.log("recordings");
 {
   const src = readFileSync(path.join(root, "site/js/audio.js"), "utf8");

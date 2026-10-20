@@ -1,6 +1,5 @@
-// Packs a page of the site into one self-contained HTML file (for the copy that runs inside Claude).
+// Packs the site into one self-contained HTML file (for the copy that runs inside Claude).
 //   node tools/build-single.mjs                 -> dist/index.html, recordings embedded
-//   node tools/build-single.mjs letters.html    -> dist/letters.html
 //   add --no-audio to leave the recordings as links to audio/*.mp3
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";

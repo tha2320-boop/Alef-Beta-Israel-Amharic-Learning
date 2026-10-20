@@ -8,14 +8,13 @@
 | תיקייה | מה בה |
 |---|---|
 | `site/index.html` | הכלי המלא |
-| `site/letters.html` | לשונית האותיות בלבד, בלי הקלטות |
-| `site/js/app.js` | הקוד. משותף לשני הדפים |
+| `site/js/app.js` | הקוד |
 | `site/data/lessons.js` | הנושאים מהשיעורים |
 | `site/data/vocab.js` | נושאי אוצר המילים |
 | `site/data/tips.js` | הסברי הדקדוק |
 | `site/audio/` | חמש ההקלטות של המורה |
 | `tests/` | הבדיקות, ורשימת מפתחות ההתקדמות (`keys.json`) |
-| `tools/build-single.mjs` | אורז דף לקובץ HTML אחד, לגרסה שרצה ב-Claude |
+| `tools/build-single.mjs` | אורז את הכלי לקובץ HTML אחד, לגרסה שרצה ב-Claude |
 
 ## איך זה עולה לאוויר
 

@@ -397,4 +397,3 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .scard small{color:var(--muted); font-weight:600; font-size:.85rem; padding:0}
 .scard b{background:none; color:var(--ink); border-radius:0; padding:.1rem 0 0; font-size:1.6rem; font-weight:400; font-family:"Suez One","Assistant",serif}
 @media (prefers-reduced-motion:reduce){ .end .weave .w1{animation:none} }
-.letters-page .wrap{padding-bottom:3rem}
