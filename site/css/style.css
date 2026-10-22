@@ -406,7 +406,14 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .listen{display:inline-flex; flex-direction:column; align-items:center; gap:.3rem; font:inherit; font-weight:700; color:var(--ink); background:var(--card); border:1.5px solid var(--ink); border-radius:1rem; padding:.9rem 1.6rem; cursor:pointer}
 .listen .pl{font-size:2.6rem; line-height:1}
 .listen.on{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
-.seg{display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; margin:1rem 0 .2rem; font-weight:700}
-.seg button{font:inherit; font-weight:700; font-size:.92rem; border:1.5px solid var(--line); border-radius:.6rem; background:transparent; color:var(--muted); padding:.35rem .8rem; cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
-.seg-note{color:var(--muted); font-size:.9rem; margin:.2rem 0 1rem}
+.modebox{border:1.5px solid var(--ink); border-radius:.9rem; overflow:hidden; margin:1.4rem 0 .4rem; background:var(--card)}
+.modebox .weave{display:block; margin:0}
+.mb-in{padding:.9rem 1rem 1rem}
+.mb-t{font-weight:800; font-size:1.1rem; margin-bottom:.7rem}
+.mb-opts{display:grid; grid-template-columns:1fr 1fr; gap:.6rem}
+.mopt{display:flex; flex-direction:column; align-items:center; gap:.2rem; font:inherit; color:var(--ink); background:transparent; border:1.5px solid var(--line); border-radius:.8rem; padding:.8rem .4rem .7rem; cursor:pointer}
+.mopt svg{width:2.6rem; height:2.3rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; margin-bottom:.2rem}
+.mopt b{font-size:1.05rem} .mopt small{color:var(--muted); font-size:.85rem}
+.mopt[aria-pressed="true"]{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.mopt[aria-pressed="true"] small{color:inherit; opacity:.8}
+.mb-note{color:var(--muted); font-size:.88rem; margin:.7rem 0 0}

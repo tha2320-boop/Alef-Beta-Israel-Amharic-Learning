@@ -1014,17 +1014,25 @@ function clipBtn(gs, label){
   gs=gs.filter(hasClip); if(!gs.length) return "";
   return '<button class="aud" data-act="clips:'+gs.join(",")+'">▶︎ '+label+'</button>';
 }
+/* letters chart: what a tap on a form does. Line drawings, no emoji: an ear for listening, a reed pen for writing */
+var IC_EAR='<svg viewBox="0 0 32 28" aria-hidden="true"><path d="M13 11a6.5 6.5 0 0 1 13 0c0 4-4 5.2-4 9.2a3.6 3.6 0 0 1-6.6 2"/><path d="M16.6 11a2.9 2.9 0 0 1 5.8 0c0 2-2.6 2.6-2.6 4.6"/><path d="M8.5 7.5c-2 3-2 7 0 10"/><path d="M4.5 4.5c-3.6 5-3.6 11 0 16"/></svg>';
+var IC_PEN='<svg viewBox="0 0 32 28" aria-hidden="true"><path d="M8 19 23.5 3.5a2.5 2.5 0 0 1 3.5 3.5L11.5 22.5 6.5 24z"/><path d="M20.5 6.5l3.5 3.5"/><path d="M14 26c3-1.8 5.5.6 8.5-.8s5-1.6 7.5-.6"/></svg>';
+function modeBox(){
+  var all=0, rec=0; GROUPS.forEach(function(G){ G.ids.forEach(function(id){ (BY_ID[id]?BY_ID[id].forms:[]).forEach(function(f){ all++; if(hasClip(f.g)) rec++; }); }); });
+  var opt=function(k,ic,t,sub){ return '<button class="mopt" data-act="cmode:'+k+'" aria-pressed="'+(chartMode===k)+'">'+ic+'<b>'+t+'</b><small>'+sub+'</small></button>'; };
+  return '<div class="modebox">'+weave(unitLook(2).mo,100,8)+'<div class="mb-in"><div class="mb-t">מה קורה כשלוחצים על אות בלוח?</div>'+
+    '<div class="mb-opts" role="group" aria-label="מה קורה כשלוחצים על אות בלוח">'+opt("play",IC_EAR,"השמעה","שומעים את הצורה")+opt("trace",IC_PEN,"תרגול כתיבה","מציירים אותה באצבע")+'</div>'+
+    (chartMode==="play" && rec<all ? '<p class="mb-note">יש הקלטות ל-'+rec+' מתוך '+all+' צורות. לחיצה על צורה בלי הקלטה פותחת תרגול כתיבה.</p>' : '')+'</div></div>';
+}
 function viewLetters(){
   var P=pool(), m=mastery(P);
   var h='<h1 class="title">אותיות</h1><p class="sub">'+state.letters.length+' אותיות בתרגול, '+m.ok+' מתוך '+m.n+' צורות כבר יושבות טוב'+(m.due?', '+m.due+' מחכות לחזרה':'')+'.</p>'+
     '<button class="btn primary wide" data-act="start:letters"'+(P.length?'':' disabled')+'>תרגול אותיות</button>'+
     '<div class="note">האותיות מחולקות לארבע קבוצות לפי הצורה שלהן. סמנו ✓ ליד כל אות שכבר למדתם, ורק היא תיכנס לתרגול.</div>'+
-    '<div class="seg" role="group" aria-label="מה קורה בלחיצה על צורה"><span>לחיצה על צורה:</span>'+
-      '<button data-act="cmode:play" aria-pressed="'+(chartMode==="play")+'">השמעה</button><button data-act="cmode:trace" aria-pressed="'+(chartMode==="trace")+'">תרגול כתיבה</button></div>'+
-    (chartMode==="play"?'<p class="seg-note">יש הקלטות לכל הצורות של קבוצת שתי הרגליים. בשאר הקבוצות לחיצה פותחת תרגול כתיבה.</p>':'')+
     '<details class="rules"><summary>איך מזהים את שבע הצורות?</summary><p>כל אות מופיעה בשבע צורות, אחת לכל תנועה: ä, u, i, a, e, ï, o. באותיות עם שתי רגליים ועם שלוש רגליים השינוי עקבי:</p><ol>'+
     RULES.map(function(r){ return '<li>'+r+'</li>'; }).join("")+'</ol>'+audBtn("vow","האזנה לשבע התנועות")+'</details>'+
     '<details class="rules"><summary>איך קוראים את הכתיב הלטיני?</summary><p>המילים והמשפטים כתובים באותו סימון של לוח האותיות:</p><ul class="key"><li><b class="lat">ä</b> התנועה של הצורה הראשונה, כמו סגול: <span class="lat">lä</span> = לֶ. באותיות א, ע ו-<span class="eth" lang="am">ኀ</span> הצורה הראשונה היא <span class="lat">a</span></li><li><b class="lat">e</b> התנועה של הצורה החמישית, כמו צירה: <span class="lat">le</span> = לֵי</li><li><b class="lat">ï</b> התנועה של הצורה השישית, כמו שווא נע. כשהיא לא נשמעת, לא כותבים אותה</li><li><b class="lat">š</b> = ש, <b class="lat">č</b> = צ\', <b class="lat">ž</b> = ז\', <b class="lat">ň</b> = ני</li><li><b class="lat">k\' t\' č\' p\' s\'</b> עיצורים מודגשים. הגרש מסמן את ההדגשה</li></ul></details>';
+  h+=modeBox();
   var rowHTML=function(Lt){
     var on=state.letters.indexOf(Lt.id)>=0;
     return '<div class="crow'+(on?'':' off')+'"><button class="tog" data-act="toggle:'+Lt.id+'" aria-pressed="'+on+'" aria-label="'+(on?"הסרת":"הוספת")+' האות '+Lt.id+'">'+(on?"✓":"+")+'</button>'+
