@@ -397,3 +397,23 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .scard small{color:var(--muted); font-weight:600; font-size:.85rem; padding:0}
 .scard b{background:none; color:var(--ink); border-radius:0; padding:.1rem 0 0; font-size:1.6rem; font-weight:400; font-family:"Suez One","Assistant",serif}
 @media (prefers-reduced-motion:reduce){ .end .weave .w1{animation:none} }
+
+/* recordings of single letter forms */
+.lforms button.frow{width:100%; font:inherit; color:inherit; background:none; border:0; border-bottom:1.5px solid var(--line); text-align:start; cursor:pointer; border-radius:0}
+.lforms button.frow .eth::after{content:"\25B6\FE0E"; font-family:"Assistant",sans-serif; font-size:.7rem; color:var(--muted); margin-inline-start:.25rem; vertical-align:middle}
+.lforms .frow.on,.cell.on{background:var(--soft); box-shadow:inset 0 0 0 1.5px var(--ink)}
+.aud[data-clip].on{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.listen{display:inline-flex; flex-direction:column; align-items:center; gap:.3rem; font:inherit; font-weight:700; color:var(--ink); background:var(--card); border:1.5px solid var(--ink); border-radius:1rem; padding:.9rem 1.6rem; cursor:pointer}
+.listen .pl{font-size:2.6rem; line-height:1}
+.listen.on{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.modebox{border:1.5px solid var(--ink); border-radius:.9rem; overflow:hidden; margin:1.4rem 0 .4rem; background:var(--card)}
+.modebox .weave{display:block; margin:0}
+.mb-in{padding:.9rem 1rem 1rem}
+.mb-t{font-weight:800; font-size:1.1rem; margin-bottom:.7rem}
+.mb-opts{display:grid; grid-template-columns:1fr 1fr; gap:.6rem}
+.mopt{display:flex; flex-direction:column; align-items:center; gap:.2rem; font:inherit; color:var(--ink); background:transparent; border:1.5px solid var(--line); border-radius:.8rem; padding:.8rem .4rem .7rem; cursor:pointer}
+.mopt svg{width:2.6rem; height:2.3rem; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; margin-bottom:.2rem}
+.mopt b{font-size:1.05rem} .mopt small{color:var(--muted); font-size:.85rem}
+.mopt[aria-pressed="true"]{background:var(--btn); border-color:var(--btn); color:var(--btn-on)}
+.mopt[aria-pressed="true"] small{color:inherit; opacity:.8}
+.mb-note{color:var(--muted); font-size:.88rem; margin:.7rem 0 0}
