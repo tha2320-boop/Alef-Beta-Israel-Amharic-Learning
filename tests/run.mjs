@@ -77,7 +77,19 @@ console.log("recordings");
   const src = readFileSync(path.join(root, "site/js/audio.js"), "utf8");
   const files = [...src.matchAll(/"(audio\/[^"]+)"/g)].map((m) => m[1]);
   const missing = files.filter((f) => !existsSync(path.join(root, "site", f)));
-  ok(files.length === 5 && missing.length === 0, `all ${files.length} recordings are in site/audio` + (missing.length ? ": missing " + missing.join(", ") : ""));
+  ok(files.length > 5 && missing.length === 0, `all ${files.length} recordings are in site/audio` + (missing.length ? ": missing " + missing.join(", ") : ""));
+
+  // a tap on a recorded form in the letters chart plays it
+  const { page, errors } = await open("index.html");
+  await page.click('[data-act="tab:letters"]');
+  await page.click('.cell[data-clip="ለ"]');
+  await page.waitForTimeout(150);
+  const playingNow = await page.evaluate(() => !!document.querySelector('.cell.on[data-clip="ለ"]'));
+  ok(playingNow, "a tap on ለ in the letters chart plays its recording");
+  await page.click('[data-act="cmode:trace"]');
+  ok(!!(await page.$('.cell[data-act="trace:ለ"]')), "writing-practice mode still opens the tracer");
+  ok(errors.length === 0, "no script errors while playing" + (errors.length ? ": " + errors[0] : ""));
+  await page.close();
 }
 
 await browser.close();

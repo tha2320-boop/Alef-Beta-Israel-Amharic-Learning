@@ -417,10 +417,13 @@ function meetWords(items){
 }
 function meetLetter(Lt){
   var G=groupOf(Lt.id), rules=G && (G.k==="g2"||G.k==="g3"), w=EXWORD[Lt.id];
-  return {t:"learn", ask:'האות <span class="eth" lang="am">'+Lt.id+'</span> בשבע הצורות שלה', aud:G?G.k:null,
-    html:'<p class="lead">באמהרית כל אות היא הברה: עיצור ותנועה יחד. לכל עיצור יש שבע צורות, אחת לכל תנועה.</p>'+
+  var gs=Lt.forms.map(function(f){ return f.g; }).filter(hasClip);
+  return {t:"learn", ask:'האות <span class="eth" lang="am">'+Lt.id+'</span> בשבע הצורות שלה', aud:G?G.k:null, auto:gs.length?gs:null,
+    html:'<p class="lead">באמהרית כל אות היא הברה: עיצור ותנועה יחד. לכל עיצור יש שבע צורות, אחת לכל תנועה.'+(gs.length?' לחיצה על צורה משמיעה אותה.':'')+'</p>'+
       '<div class="lforms">'+Lt.forms.map(function(f){
-        return '<div class="frow"><span class="eth" lang="am">'+f.g+'</span><span class="hs">'+f.heb+'</span><span class="lat">'+esc(f.lat)+'</span><span class="rule">'+(rules?RULES[f.o]:"")+'</span></div>'; }).join("")+'</div>'+
+        var inner='<span class="eth" lang="am">'+f.g+'</span><span class="hs">'+f.heb+'</span><span class="lat">'+esc(f.lat)+'</span><span class="rule">'+(rules?RULES[f.o]:"")+'</span>';
+        return hasClip(f.g) ? '<button class="frow" data-act="clip:'+f.g+'" data-clip="'+f.g+'" aria-label="השמעה של '+f.g+'">'+inner+'</button>' : '<div class="frow">'+inner+'</div>'; }).join("")+'</div>'+
+      (gs.length?'<div class="gacts">'+clipBtn(gs,"השמעה של כל הצורות")+'</div>':'')+
       (w?'<p class="lead" style="margin-top:1rem">מילה לדוגמה: <b class="eth" lang="am">'+w[0]+'</b> <span class="lat">'+w[1]+'</span> - '+w[2]+'</p>':'')};
 }
 /* a letter lesson inside a unit: one new letter at a time, taught first, then practised with the letters before it */
@@ -484,7 +487,9 @@ function distract(ans, P){
   return out.slice(0,3);
 }
 function letterMC(target, P, canRead){
-  var r=Math.random(), type=(canRead && r<0.2) ? "read" : (r<0.6 ? "toSound" : "toGlyph");
+  var r=Math.random(), type;
+  if (hasClip(target.g)) type=(canRead && r<0.15) ? "read" : r<0.4 ? "toSound" : r<0.65 ? "toGlyph" : "listen";
+  else type=(canRead && r<0.2) ? "read" : (r<0.6 ? "toSound" : "toGlyph");
   if (type==="read"){
     var n=Math.random()<0.5?2:3, seq=[target];
     while(seq.length<n) seq.push(P[Math.floor(Math.random()*P.length)]);
@@ -499,21 +504,24 @@ function letterMC(target, P, canRead){
     }
     shuffle(opts);
     var g=seq.map(function(x){return x.g;}).join("");
-    return {t:"mc", g:target.g, answer:opts.indexOf(correct), ask:"איך קוראים את זה?",
+    return {t:"mc", g:target.g, answer:opts.indexOf(correct), ask:"איך קוראים את זה?", fbClips:seq.map(function(x){ return x.g; }),
       prompt:'<div class="glyph seq eth" lang="am">'+g+'</div>',
       opts:opts.map(function(o){ return '<span class="hs" style="font-size:1.4rem">'+o.heb+'</span><span class="ls lat">'+esc(o.lat)+'</span>'; }),
       answerHTML:'<span class="eth" lang="am">'+g+'</span> = '+correct.heb+' <span class="lat">('+esc(correct.lat)+')</span>'};
   }
   var o2=shuffle([target].concat(distract(target,P)));
   var ans='<span class="eth" lang="am">'+target.g+'</span> = '+target.heb+' <span class="lat">('+esc(target.lat)+')</span>';
-  if (type==="toSound") return {t:"mc", g:target.g, cols:2, answer:o2.indexOf(target), ask:"איך קוראים את זה?",
+  if (type==="listen") return {t:"mc", g:target.g, cols:2, answer:o2.indexOf(target), ask:"איזו אות שמעתם?", auto:[target.g], fbClips:[target.g],
+    prompt:'<button class="listen" data-act="clip:'+target.g+'" data-clip="'+target.g+'" aria-label="השמעה חוזרת"><span class="pl">\u25B6\uFE0E</span><span>השמעה חוזרת</span></button>',
+    opts:o2.map(function(o){ return '<span class="g eth" lang="am">'+o.g+'</span>'; }), answerHTML:ans};
+  if (type==="toSound") return {t:"mc", g:target.g, cols:2, answer:o2.indexOf(target), ask:"איך קוראים את זה?", fbClips:[target.g],
     prompt:'<div class="glyph eth" lang="am">'+target.g+'</div>', opts:o2.map(sndHTML), answerHTML:ans};
-  return {t:"mc", g:target.g, cols:2, answer:o2.indexOf(target), ask:"איזו אות נשמעת כך?",
+  return {t:"mc", g:target.g, cols:2, answer:o2.indexOf(target), ask:"איזו אות נשמעת כך?", fbClips:[target.g],
     prompt:'<span class="snd">'+target.heb+'</span><span class="sndl lat">'+esc(target.lat)+'</span>',
     opts:o2.map(function(o){ return '<span class="g eth" lang="am">'+o.g+'</span>'; }), answerHTML:ans};
 }
 function letterMatch(items){
-  return {t:"match", ask:"התאימו אות לצליל",
+  return {t:"match", ask:"התאימו אות לצליל", clips:true,
     left: shuffle(items.map(function(f,i){ return {id:i, html:'<span class="g eth" lang="am" style="font-size:2rem">'+f.g+'</span>'}; })),
     right: shuffle(items.map(function(f,i){ return {id:i, html:sndHTML(f)}; })),
     gs: items.map(function(f){return f.g;}), done:{}, errs:{}, selL:null, selR:null, flash:null};
@@ -569,6 +577,7 @@ function check(){
   if (ok){ L.right++; L.combo++; bump(st.g,1); sound("ok"); }
   else { L.wrong++; L.combo=0; L.hearts--; bump(st.g,-2); sound("no"); }
   save(); render();
+  if (st.fbClips) autoClips(st.fbClips, 380);
 }
 function matchTap(side,id){
   var st=cur(); if(!L||L.phase!=="ask"||st.t!=="match"||st.done[id]) return;
@@ -576,7 +585,7 @@ function matchTap(side,id){
   st.flash=null;
   if (st.selL!==null && st.selR!==null){
     if (st.selL===st.selR){
-      st.done[st.selL]=1; sound("pair");
+      st.done[st.selL]=1; sound("pair"); if (st.clips) autoClips([st.gs[st.selL]], 120);
       if (Object.keys(st.done).length===st.left.length){
         var clean=!Object.keys(st.errs).length;
         st.gs.forEach(function(g,i){ bump(g, st.errs[i]?-1:1); });
@@ -618,7 +627,7 @@ function openTracer(g){ if(!formOf(g)) return; TR={g:g, msg:"", cls:""}; render(
 function viewTracer(){
   var f=formOf(TR.g);
   return '<div class="lesson studio"><div class="l-top"><button class="icon-btn" data-act="trclose" aria-label="סגירה">✕</button><b style="flex:1">תרגול כתיבה</b></div>'+
-    '<div class="tr-snd"><span class="hs">'+f.heb+'</span> <span class="lat">'+esc(f.lat)+'</span></div>'+
+    '<div class="tr-snd"><span class="hs">'+f.heb+'</span> <span class="lat">'+esc(f.lat)+'</span>'+(hasClip(f.g)?' <button class="aud" data-act="clip:'+f.g+'" data-clip="'+f.g+'">\u25B6\uFE0E השמעה</button>':'')+'</div>'+
     tracerHint(f)+
     '<div class="pad"><canvas id="trbg"></canvas><canvas id="trfg" aria-label="משטח כתיבה לאות '+f.g+'"></canvas></div>'+
     '<p class="tr-msg '+TR.cls+'" id="trmsg" aria-live="polite">'+(TR.msg||"עברו באצבע על האות האפורה")+'</p>'+
@@ -909,7 +918,8 @@ function groupOf(id){ for (var i=0;i<GROUPS.length;i++) if (GROUPS[i].ids.indexO
 
 /* recordings: decoded with Web Audio so they play without any media element */
 var playing=null;      // {key, src}
-function stopAudio(){ if(playing){ try{ playing.src.onended=null; playing.src.stop(); }catch(e){} playing=null; } }
+var chartMode="play";  // letters chart: a tap plays the form ("play") or opens writing practice ("trace")
+function stopAudio(){ clipStop(); if(playing){ try{ playing.src.onended=null; playing.src.stop(); }catch(e){} playing=null; } }
 function playAudio(key){
   var was = playing && playing.key===key; stopAudio();
   if (was){ render(); return; }
@@ -942,11 +952,76 @@ function audBtn(key,label){
   var on = playing && playing.key===key;
   return '<button class="aud'+(on?' on':'')+'" data-act="aud:'+key+'">'+(on?"עצירה":"\u25B6\uFE0E "+label)+'</button>';
 }
+
+/* single letter forms (LETTER_AUDIO): short clips, played without redrawing the page.
+   The form that is sounding gets the class "on" (any element with data-clip="<form>"). */
+var CLIP={el:null, buf:{}, seq:null, src:null, tok:0};
+function hasClip(g){ return !!(window.LETTER_AUDIO||{})[g]; }
+function markClip(g){ var els=document.querySelectorAll("[data-clip]"); for (var i=0;i<els.length;i++) els[i].classList.toggle("on", els[i].getAttribute("data-clip")===g); }
+function clipStop(){
+  CLIP.tok++; if(CLIP.seq){ CLIP.seq.stop=true; CLIP.seq=null; }
+  if(CLIP.el){ try{ CLIP.el.pause(); }catch(e){} }
+  if(CLIP.src){ try{ CLIP.src.onended=null; CLIP.src.stop(); }catch(e){} CLIP.src=null; }
+  markClip(null);
+}
+function clipOne(g, done){
+  var s=(window.LETTER_AUDIO||{})[g], tok=CLIP.tok, ended=false;
+  var end=function(){ if(ended||tok!==CLIP.tok) return; ended=true; markClip(null); if(done) done(); };
+  if(!s) return end();
+  markClip(g);
+  if (/\.(mp3|m4a|ogg|wav)$/i.test(s)){          // a file next to the page (the website)
+    var el=CLIP.el||(CLIP.el=new Audio()); CLIP.unlocking=false; el.muted=false; el.onended=end; el.onerror=end; el.src=s;
+    var pp=el.play(); if(pp&&pp.catch) pp.catch(end);
+    return;
+  }
+  try {                                           // embedded data (the copy inside Claude)
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return end();
+    actx=actx||new AC(); if(actx.state==="suspended") actx.resume();
+    var go=function(ab){
+      if(tok!==CLIP.tok) return; CLIP.buf[g]=ab;
+      var src=actx.createBufferSource(); src.buffer=ab; src.connect(actx.destination);
+      src.onended=function(){ if(CLIP.src===src) CLIP.src=null; end(); };
+      CLIP.src=src; src.start();
+    };
+    if (CLIP.buf[g]) return go(CLIP.buf[g]);
+    var bin=atob(s), b=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i);
+    var pr=actx.decodeAudioData(b.buffer, go, end); if(pr&&pr.catch) pr.catch(end);
+  } catch(e){ end(); }
+}
+function playClips(gs){                           // one form after another, a short pause between
+  var had=!!playing; stopAudio(); if (had) render();
+  gs=(gs||[]).filter(hasClip); if(!gs.length) return;
+  var run={stop:false}, i=0; CLIP.seq=run;
+  var next=function(){
+    if(run.stop) return;
+    if(i>=gs.length){ if(CLIP.seq===run) CLIP.seq=null; return; }
+    clipOne(gs[i++], function(){ if(!run.stop) setTimeout(next, 220); });
+  };
+  next();
+}
+function unlockClips(){                          // iPhone: a media element may only play later if it first played during a tap
+  if (CLIP.el) return; var first=null, A=window.LETTER_AUDIO||{}; for (var k in A){ first=A[k]; break; }
+  if (!first || !/\.(mp3|m4a|ogg|wav)$/i.test(first)) return;
+  var el=CLIP.el=new Audio(); el.muted=true; el.src=first; CLIP.unlocking=true;
+  var back=function(){ if (CLIP.unlocking){ CLIP.unlocking=false; el.pause(); el.muted=false; } };
+  var pp=el.play(); if (pp && pp.then) pp.then(back, back); else back();
+}
+function autoClips(gs, delay){                    // automatic playback: silent when the sound is off
+  if (state.mute) return;
+  if (delay) setTimeout(function(){ playClips(gs); }, delay); else playClips(gs);
+}
+function clipBtn(gs, label){
+  gs=gs.filter(hasClip); if(!gs.length) return "";
+  return '<button class="aud" data-act="clips:'+gs.join(",")+'">▶︎ '+label+'</button>';
+}
 function viewLetters(){
   var P=pool(), m=mastery(P);
   var h='<h1 class="title">אותיות</h1><p class="sub">'+state.letters.length+' אותיות בתרגול, '+m.ok+' מתוך '+m.n+' צורות כבר יושבות טוב'+(m.due?', '+m.due+' מחכות לחזרה':'')+'.</p>'+
     '<button class="btn primary wide" data-act="start:letters"'+(P.length?'':' disabled')+'>תרגול אותיות</button>'+
-    '<div class="note">האותיות מחולקות לארבע קבוצות לפי הצורה שלהן. סמנו ✓ ליד כל אות שכבר למדתם, ורק היא תיכנס לתרגול. לחיצה על צורה פותחת תרגול כתיבה.</div>'+
+    '<div class="note">האותיות מחולקות לארבע קבוצות לפי הצורה שלהן. סמנו ✓ ליד כל אות שכבר למדתם, ורק היא תיכנס לתרגול.</div>'+
+    '<div class="seg" role="group" aria-label="מה קורה בלחיצה על צורה"><span>לחיצה על צורה:</span>'+
+      '<button data-act="cmode:play" aria-pressed="'+(chartMode==="play")+'">השמעה</button><button data-act="cmode:trace" aria-pressed="'+(chartMode==="trace")+'">תרגול כתיבה</button></div>'+
+    (chartMode==="play"?'<p class="seg-note">יש הקלטות לכל הצורות של קבוצת שתי הרגליים. בשאר הקבוצות לחיצה פותחת תרגול כתיבה.</p>':'')+
     '<details class="rules"><summary>איך מזהים את שבע הצורות?</summary><p>כל אות מופיעה בשבע צורות, אחת לכל תנועה: ä, u, i, a, e, ï, o. באותיות עם שתי רגליים ועם שלוש רגליים השינוי עקבי:</p><ol>'+
     RULES.map(function(r){ return '<li>'+r+'</li>'; }).join("")+'</ol>'+audBtn("vow","האזנה לשבע התנועות")+'</details>'+
     '<details class="rules"><summary>איך קוראים את הכתיב הלטיני?</summary><p>המילים והמשפטים כתובים באותו סימון של לוח האותיות:</p><ul class="key"><li><b class="lat">ä</b> התנועה של הצורה הראשונה, כמו סגול: <span class="lat">lä</span> = לֶ. באותיות א, ע ו-<span class="eth" lang="am">ኀ</span> הצורה הראשונה היא <span class="lat">a</span></li><li><b class="lat">e</b> התנועה של הצורה החמישית, כמו צירה: <span class="lat">le</span> = לֵי</li><li><b class="lat">ï</b> התנועה של הצורה השישית, כמו שווא נע. כשהיא לא נשמעת, לא כותבים אותה</li><li><b class="lat">š</b> = ש, <b class="lat">č</b> = צ\', <b class="lat">ž</b> = ז\', <b class="lat">ň</b> = ני</li><li><b class="lat">k\' t\' č\' p\' s\'</b> עיצורים מודגשים. הגרש מסמן את ההדגשה</li></ul></details>';
@@ -954,7 +1029,8 @@ function viewLetters(){
     var on=state.letters.indexOf(Lt.id)>=0;
     return '<div class="crow'+(on?'':' off')+'"><button class="tog" data-act="toggle:'+Lt.id+'" aria-pressed="'+on+'" aria-label="'+(on?"הסרת":"הוספת")+' האות '+Lt.id+'">'+(on?"✓":"+")+'</button>'+
       Lt.forms.map(function(f){
-        return '<button class="cell" data-act="trace:'+f.g+'" aria-label="תרגול כתיבה של '+f.g+'"><span class="eth" lang="am">'+f.g+'</span><span class="lat">'+esc(f.lat)+'</span><span class="m"><i style="width:'+(strength(f.g)*20)+'%"></i></span></button>';
+        var pl=chartMode==="play" && hasClip(f.g);
+        return '<button class="cell" '+(pl?'data-act="clip:'+f.g+'" data-clip="'+f.g+'" aria-label="השמעה של '+f.g+'"':'data-act="trace:'+f.g+'" aria-label="תרגול כתיבה של '+f.g+'"')+'><span class="eth" lang="am">'+f.g+'</span><span class="lat">'+esc(f.lat)+'</span><span class="m"><i style="width:'+(strength(f.g)*20)+'%"></i></span></button>';
       }).join("")+'</div>';
   };
   GROUPS.forEach(function(G){
@@ -1051,13 +1127,14 @@ function viewLesson(){
 function render(){
   if (TR){ app.innerHTML=viewTracer(); initTracer(); return; }
   if (TIP && !L){ app.innerHTML=viewTip(); return; }
-  if (L){ app.innerHTML=viewLesson(); return; }
+  if (L){ app.innerHTML=viewLesson(); var s0=(!L.done&&!L.failed)?cur():null; if (s0 && s0.auto && L.phase==="ask" && !s0.autoDone){ s0.autoDone=true; autoClips(s0.auto); } return; }
   app.innerHTML='<div class="wrap">'+topbar()+(tab==="home"?viewHome():tab==="letters"?viewLetters():viewWords())+'</div>'+nav();
 }
 
 /* ---------- events ---------- */
 app.addEventListener("click", function(e){
   var b=e.target.closest("[data-act]"); if(!b || b.disabled) return;
+  unlockClips();
   var p=b.getAttribute("data-act").split(":"), a=p[0], v=p.slice(1).join(":");
   if (a!=="reset" && resetArmed) resetArmed=false;
   switch(a){
@@ -1082,6 +1159,9 @@ app.addEventListener("click", function(e){
     case "retry": startLesson(L.kind, L.id); break;
     case "trace": stopAudio(); openTracer(v); break;
     case "aud": playAudio(v); break;
+    case "clip": playClips([v]); break;
+    case "clips": playClips(v.split(",")); break;
+    case "cmode": stopAudio(); chartMode = v==="trace" ? "trace" : "play"; render(); break;
     case "grp":
       var G=null; GROUPS.forEach(function(x){ if(x.k===v) G=x; });
       if (G){
@@ -1090,7 +1170,7 @@ app.addEventListener("click", function(e){
         save(); render();
       }
       break;
-    case "trclose": TR=null; render(); break;
+    case "trclose": stopAudio(); TR=null; render(); break;
     case "trclear": trClear(); break;
     case "trcheck": trCheck(); break;
     case "mute": state.mute=!state.mute; save(); render(); if(!state.mute) sound("pair"); break;
