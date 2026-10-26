@@ -120,6 +120,20 @@ ALL.forEach(function(c){
   f.forEach(function(w,i){ if(!WORD_LAT[w]) WORD_LAT[w]=l[i].toLowerCase(); });
 });
 
+/* stories: each story is a deck of its sentences and its word list (reading tab + a quiz) */
+var STORIES = A.STORIES||[], STORY_ITEMS = [];
+STORIES.forEach(function(st, si){
+  var d={id:st.id, title:st.he, src:"story", si:si}; st.deck=d; d.items=[];
+  var add=function(x, sent){ d.items.push({fid:x[0], lat:x[1], he:x[2], g:"s:"+x[0], deck:d, sent:sent, mine:true}); };
+  st.pages.forEach(function(pg){ pg.forEach(function(x){ add(x,true); }); });
+  st.words.forEach(function(x){ add(x,false); });
+  STORY_ITEMS = STORY_ITEMS.concat(d.items);
+  st.pages.forEach(function(pg){ pg.forEach(function(x){
+    var f=x[0].split(" "), l=x[1].split(" ");
+    if (f.length===l.length) f.forEach(function(w,i){ if(!WORD_LAT[w]) WORD_LAT[w]=l[i].replace(/^[«"]+|[.,!?»"]+$/g,"").toLowerCase(); });
+  }); });
+});
+
 /* ---------- state + saving ---------- */
 var LS_KEY = "fidel-trainer-v1", GOAL = 30;
 function fresh(){ return {v:2, letters:START_SET.slice(), str:{}, due:{}, words:[], xp:0, streak:0, lastDay:"", dayKey:"", dayXp:0, mute:false}; }
@@ -210,7 +224,7 @@ function mastery(items){
 }
 function dueWords(){
   var seen={}, out=[];
-  ALL.concat(ownDeck().items).forEach(function(x){ if(!seen[x.g] && isDue(x.g)){ seen[x.g]=1; out.push(x); } });
+  ALL.concat(STORY_ITEMS, ownDeck().items).forEach(function(x){ if(!seen[x.g] && isDue(x.g)){ seen[x.g]=1; out.push(x); } });
   return out;
 }
 function ownDeck(){
@@ -220,6 +234,7 @@ function ownDeck(){
 }
 function getDeck(kind,id){
   if (kind==="own") return ownDeck();
+  if (kind==="story"){ for (var si=0;si<STORIES.length;si++) if (STORIES[si].id===id) return STORIES[si].deck; return null; }
   if (kind==="review") return {id:"review", title:"חזרה יומית", items:dueWords()};
   if (kind==="mix"){ chapters(); return {id:id, title:"תרגול מעורב", items:ALL.filter(function(x){ return id==="s" ? x.deck.part===2 : x.deck.part!==2; })}; }
   for (var i=0;i<DECKS.length;i++) if (DECKS[i].id===id) return DECKS[i];
@@ -289,7 +304,8 @@ function mascot(mood,size,cls){
 /* ---------- lesson builders ---------- */
 function mcOptions(target){
   var cand = shuffle(target.deck.items.slice());
-  if (target.deck.src!=="own") cand = cand.concat(shuffle(ALL.slice()));
+  if (target.deck.src==="story") cand = cand.filter(function(c){ return c.sent===target.sent; });
+  else if (target.deck.src!=="own") cand = cand.concat(shuffle(ALL.slice()));
   var opts=[target], sh={}, sl={}; sh[target.he]=1; sl[target.lat]=1;
   for (var i=0;i<cand.length && opts.length<4;i++){
     var c=cand[i]; if (sh[c.he]||sl[c.lat]) continue;
@@ -476,6 +492,17 @@ function buildPathLesson(deck){
   if (m2){ teach(m2); steps.push(wordMatch(m2)); }
   return steps;
 }
+/* after reading a story: its words first (taught, then asked), then its sentences */
+function buildStoryLesson(deck){
+  var W=drawer(deck.items.filter(function(c){ return !c.sent; })), S=drawer(deck.items.filter(function(c){ return c.sent; }));
+  var steps=[], tw=[]; while (W.left() && tw.length<4) tw.push(W.draw());
+  var nw=tw.filter(function(c){ return isNew(c.g); }); if (nw.length) steps.push(meetWords(nw));
+  tw.forEach(function(t){ steps.push(spellable(t) && Math.random()<0.3 ? wordSpell(t) : wordMC(t)); });
+  var mw=tw.slice(); while (W.left() && mw.length<4) mw.push(W.draw());
+  if (mw.length===4) steps.push(wordMatch(shuffle(mw)));
+  for (var i=0;i<4 && S.left();i++){ var t=S.draw(); steps.push(buildable(t) && Math.random()<0.6 ? wordBuild(t) : wordMC(t)); }
+  return steps;
+}
 function distract(ans, P){
   var cand = P.filter(function(x){return x.key!==ans.key;});
   var out=[], seen={}; seen[ans.key]=1;
@@ -550,10 +577,10 @@ function startLesson(kind,id){
   var steps, title;
   if (kind==="letters"){ steps=buildLetterLesson(); title="אותיות"; }
   else if (kind==="lset"){ var u=chapters()[+id]; if(!u || !u.forms.length) return; steps=buildLetterSetLesson(u); title="אותיות"; }
-  else { var d=getDeck(kind,id); if(!d) return; steps = kind==="deck" ? buildPathLesson(d) : buildWordLesson(d); title=d.title; }
+  else { var d=getDeck(kind,id); if(!d) return; steps = kind==="deck" ? buildPathLesson(d) : kind==="story" ? buildStoryLesson(d) : buildWordLesson(d); title=d.title; }
   if (!steps.length) return;
   touched={};
-  var ui=5; if (kind==="lset") ui=+id; else if (kind==="deck") chapters().forEach(function(c){ if (c.decks.indexOf(d)>=0) ui=c.i; });
+  var ui=5; if (kind==="lset") ui=+id; else if (kind==="story") ui=d.si+2; else if (kind==="deck") chapters().forEach(function(c){ if (c.decks.indexOf(d)>=0) ui=c.i; });
   L={kind:kind, id:id, title:title, look:unitLook(ui), steps:steps, i:0, hearts:HEARTS, right:0, wrong:0, combo:0, phase:"ask", sel:null, ok:null};
   render(); window.scrollTo(0,0);
 }
@@ -771,7 +798,7 @@ function topbar(){
     '<div class="hem">'+weave(1,100,10)+'</div>';
 }
 function nav(){
-  var it=[["home","","מסלול"],["letters","","אותיות"],["words","","המילים שלי"]];
+  var it=[["home","","מסלול"],["letters","","אותיות"],["stories","","סיפורים"],["words","","המילים שלי"]];
   return '<nav class="nav"><div>'+it.map(function(x){
     return '<button data-act="tab:'+x[0]+'"'+(tab===x[0]?' aria-current="page"':'')+'>'+x[2]+'</button>'; }).join("")+'</div></nav>';
 }
@@ -1050,6 +1077,37 @@ function viewLetters(){
   });
   return h+'<div class="note">הצורה השישית (ï) נהגית לפעמים כתנועה קצרה מאוד ולפעמים כעיצור בלבד, בדומה לשווא נע ושווא נח. באותיות א, ע ו-ኀ הצורה הראשונה נקראת a.</div>';
 }
+/* ---------- stories: read page by page, the Hebrew on tap ---------- */
+var RD=null;                       // {i: story index, p: page (pages.length = the word list), he: {} shown translations}
+function viewStories(){
+  var h='<h1 class="title">סיפורים</h1><p class="sub">סיפורים קצרים לקריאה. קוראים עמוד אחרי עמוד, והתרגום לעברית מופיע בלחיצה. בסוף כל סיפור יש תרגול קצר.</p><div class="stories">';
+  STORIES.forEach(function(st,i){
+    var m=mastery(st.deck.items), n=0; st.pages.forEach(function(pg){ n+=pg.length; });
+    h+='<button class="scard-story" data-act="story:'+i+'">'+weave(unitLook(i+2).mo, m.n?Math.round(100*m.seen/m.n):0, 12)+
+      '<span class="st-am eth" lang="am">'+esc(st.am)+'</span><span class="st-he">'+esc(st.he)+'</span>'+
+      '<small>'+st.pages.length+' עמודים, '+n+' משפטים'+(m.seen?' · '+m.seen+' מתוך '+m.n+' כבר תורגלו':'')+'</small></button>';
+  });
+  return h+'</div>';
+}
+function viewReader(){
+  var st=STORIES[RD.i], P=st.pages.length, last=RD.p>=P, pct=Math.round(100*Math.min(RD.p+1,P+1)/(P+1));
+  var h='<div class="lesson reader"><div class="l-top"><button class="icon-btn" data-act="rdclose" aria-label="סגירה">✕</button>'+
+    '<div class="lbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+weave(unitLook(RD.i+2).mo,pct,14)+'</div></div>'+
+    '<h2 class="ask"><span class="eth" lang="am">'+esc(st.am)+'</span> <small>'+esc(st.he)+'</small></h2>';
+  if (!last){
+    h+='<p class="rd-pg">עמוד '+(RD.p+1)+' מתוך '+P+'</p><div class="rd-page">'+st.pages[RD.p].map(function(x,k){
+      var key=RD.p+"-"+k, on=!!RD.he[key];
+      return '<div class="sent"><p class="eth" lang="am">'+esc(x[0])+'</p><p class="lat">'+esc(x[1])+'</p>'+
+        (on?'<p class="he">'+esc(x[2])+'</p>':'<button class="he-btn" data-act="rhe:'+key+'">הצגת התרגום</button>')+'</div>'; }).join("")+'</div>';
+  } else {
+    h+='<p class="rd-pg">מילים מהסיפור</p><div class="meet">'+st.words.map(function(w){
+      return '<div class="mrow"><span class="eth" lang="am">'+esc(w[0])+'</span><span class="lat">'+esc(w[1])+'</span><span class="he">'+esc(w[2])+'</span></div>'; }).join("")+'</div>';
+  }
+  h+='</div><div class="l-foot"><div class="row">';
+  if (!last) h+='<button class="btn" data-act="rdgo:-1" style="flex:1"'+(RD.p?'':' disabled')+'>הקודם</button><button class="btn primary" data-act="rdgo:1" style="flex:2">'+(RD.p===P-1?'למילים מהסיפור':'הבא')+'</button>';
+  else h+='<button class="btn" data-act="rdgo:-'+P+'" style="flex:1">מההתחלה</button><button class="btn primary" data-act="start:story:'+st.id+'" style="flex:2">תרגול על הסיפור</button>';
+  return h+'</div></div>';
+}
 function viewWords(){
   var n=state.words.length;
   var h='<h1 class="title">המילים שלי</h1><p class="sub">הוסיפו מילים ומשפטים שתרצו לזכור, בכל כתב: פידל, אותיות עבריות או לטיניות.</p>'+
@@ -1135,8 +1193,9 @@ function viewLesson(){
 function render(){
   if (TR){ app.innerHTML=viewTracer(); initTracer(); return; }
   if (TIP && !L){ app.innerHTML=viewTip(); return; }
+  if (RD && !L){ app.innerHTML=viewReader(); return; }
   if (L){ app.innerHTML=viewLesson(); var s0=(!L.done&&!L.failed)?cur():null; if (s0 && s0.auto && L.phase==="ask" && !s0.autoDone){ s0.autoDone=true; autoClips(s0.auto); } return; }
-  app.innerHTML='<div class="wrap">'+topbar()+(tab==="home"?viewHome():tab==="letters"?viewLetters():viewWords())+'</div>'+nav();
+  app.innerHTML='<div class="wrap">'+topbar()+(tab==="home"?viewHome():tab==="letters"?viewLetters():tab==="stories"?viewStories():viewWords())+'</div>'+nav();
 }
 
 /* ---------- events ---------- */
@@ -1146,13 +1205,17 @@ app.addEventListener("click", function(e){
   var p=b.getAttribute("data-act").split(":"), a=p[0], v=p.slice(1).join(":");
   if (a!=="reset" && resetArmed) resetArmed=false;
   switch(a){
-    case "tab": stopAudio(); tab=v; openNode=null; render(); window.scrollTo(0,0); break;
+    case "tab": stopAudio(); RD=null; tab=v; openNode=null; render(); window.scrollTo(0,0); break;
     case "node": openNode = openNode===v ? null : v; render(); break;
     case "chap":
       openCh = shownCh()===+v ? -1 : +v; openNode=null; render();
       var chEl=document.getElementById("ch-"+v); if (chEl && chEl.scrollIntoView) chEl.scrollIntoView({block:"start"});
       break;
-    case "start": stopAudio(); TIP=null; startLesson(p[1], p[2]); break;
+    case "start": stopAudio(); TIP=null; RD=null; startLesson(p[1], p[2]); break;
+    case "story": RD={i:+v, p:0, he:{}}; render(); window.scrollTo(0,0); break;
+    case "rdclose": RD=null; render(); window.scrollTo(0,0); break;
+    case "rdgo": if (RD){ RD.p=Math.max(0, Math.min(STORIES[RD.i].pages.length, RD.p+(+v))); render(); window.scrollTo(0,0); } break;
+    case "rhe": if (RD){ RD.he[v]=1; render(); } break;
     case "tip": if(TIPS[v]){ TIP=v; render(); window.scrollTo(0,0); } break;
     case "tipclose": TIP=null; render(); break;
     case "opt": selectOpt(+v); break;
