@@ -1,6 +1,20 @@
 /* Short grammar notes that lean on Hebrew. ex(fidel, Latin, Hebrew) draws one example line. */
 window.ALEF = window.ALEF || {};
 ALEF.TIPS = function(ex){ return {
+ punct:{t:"סימני פיסוק באמהרית", h:
+  '<p>באמהרית יש סימני פיסוק משלה, והם נראים אחרת מבעברית. בסיפורים תפגשו בעיקר את אלה:</p>'+
+  '<p class="ex"><span class="eth" lang="am">።</span><span class="lat">נקודה</span><span class="exh">ארבע נקודות בריבוע. בסוף כל משפט, כמו הנקודה בעברית.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">፣</span><span class="lat">פסיק</span><span class="exh">מפריד בין חלקי משפט, כמו הפסיק בעברית.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">« »</span><span class="lat">מירכאות</span><span class="exh">סביב דיבור ישיר. לפעמים כותבים גם " ".</span></p>'+
+  '<p>שתי דוגמאות מהסיפורים:</p>'+
+  ex("«ሲንደሬላ አታልቅሺ፣ ወደ ድግሱ ትሄጃለሽ» አለቻት።","«Sinderela atalk\'ši, wädä dgsu thejaläš» aläčat.","פסיק באמצע, מירכאות סביב הדיבור, ונקודה בסוף")+
+  ex("ግንቡ በር የለውም።","Gnbu bär yäläwm.","משפט קצר שנגמר בנקודה")+
+  '<p>סימני שאלה וקריאה נכתבים היום בדרך כלל כמו בעברית: ? ו-!. יש עוד כמה סימנים, אבל הם נדירים בטקסטים של היום:</p>'+
+  '<p class="ex"><span class="eth" lang="am">፡</span><span class="lat">מפריד מילים</span><span class="exh">שתי נקודות בין מילה למילה. היום משתמשים ברווח במקומו.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">፤</span><span class="lat">נקודה-פסיק</span><span class="exh">עצירה ארוכה מפסיק וקצרה מנקודה.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">፥ ፦</span><span class="lat">נקודתיים</span><span class="exh">לפני רשימה, ציטוט או הסבר.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">፧</span><span class="lat">סימן שאלה ישן</span><span class="exh">שלוש נקודות. היום כותבים ?.</span></p>'+
+  '<p class="ex"><span class="eth" lang="am">፨</span><span class="lat">סוף פסקה</span><span class="exh">מסמן סוף של פסקה או של קטע.</span></p>'},
  greet:{t:"זכר, נקבה ורבים", h:
   '<p>כמו בעברית, הסיומת משתנה לפי מי שמדברים אליו. בעברית: שלומךָ, שלומֵך, שלומכם. באמהרית:</p>'+
   ex("እንዴት ነህ?","Ïndet näh?","לגבר: הסיומת ‎-h")+ex("እንዴት ነሽ?","Ïndet näš?","לאישה: הסיומת ‎-š")+ex("እንዴት ናችሁ?","Ïndet naču?","לרבים: הסיומת ‎-aču")+

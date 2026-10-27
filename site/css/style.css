@@ -29,7 +29,7 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Rubik","Arial Hebrew","Segoe UI",Arial,sans-serif; font-size:1.0625rem; line-height:1.45; -webkit-tap-highlight-color:transparent}
 button{font:inherit; color:inherit}
-.eth{font-family:"Noto Sans Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif; direction:ltr; unicode-bidi:isolate; font-weight:500}
+.eth{font-family:"Noto Serif Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif; direction:ltr; unicode-bidi:isolate; font-weight:500}
 .lat{direction:ltr; unicode-bidi:isolate}
 h1,h2,h3,p{margin:0}
 button:focus-visible,input:focus-visible{outline:3px solid var(--blue); outline-offset:2px}
@@ -271,7 +271,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--blue); outline-
 }
 body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-size:1.0625rem; line-height:1.5}
 .title,.unit-h h2,.ask,.end h2,.chap b,.callout h3,.brand,.ghead h2,.fb-t{font-family:"Suez One","Assistant",serif; font-weight:400; letter-spacing:0}
-.eth{font-family:"Noto Sans Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif}
+.eth{font-family:"Noto Serif Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif}
 
 /* the woven band */
 .weave{display:block; position:relative; width:100%; height:var(--h,14px); overflow:hidden; border-radius:2px; background:var(--soft)}
