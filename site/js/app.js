@@ -671,7 +671,7 @@ var trCtx=null, trN=0, trDrawn=false;
 function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888"; }
 function drawGlyph(ctx, n, g, color, outline){
   ctx.clearRect(0,0,n,n);
-  ctx.font='500 '+Math.round(n*0.6)+'px "Noto Serif Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif';
+  ctx.font='400 '+Math.round(n*0.6)+'px "Abyssinica SIL","Noto Serif Ethiopic","Kefa","Nyala",serif';
   ctx.textAlign="center"; ctx.textBaseline="alphabetic";
   var m=ctx.measureText(g), up=m.actualBoundingBoxAscent||n*0.45, dn=m.actualBoundingBoxDescent||0, y=n/2+(up-dn)/2;
   ctx.fillStyle=color; ctx.fillText(g, n/2, y);
@@ -683,7 +683,7 @@ function initTracer(){
   bg.width=bg.height=fg.width=fg.height=n; trN=n; trDrawn=false;
   var paint=function(){ if(TR && document.getElementById("trbg")===bg) { var c=bg.getContext("2d"); c.globalAlpha=0.38; drawGlyph(c, n, TR.g, cssVar("--muted")); } };
   paint();
-  if (document.fonts && document.fonts.load) document.fonts.load('500 40px "Noto Serif Ethiopic"', TR.g).then(paint, function(){});
+  if (document.fonts && document.fonts.load) document.fonts.load('400 40px "Abyssinica SIL"', TR.g).then(paint, function(){});
   var ctx=fg.getContext("2d"); trCtx=ctx;
   ctx.lineCap="round"; ctx.lineJoin="round"; ctx.lineWidth=n*0.055; ctx.strokeStyle=cssVar("--blue");
   var down=false, last=null;
