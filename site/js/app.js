@@ -671,7 +671,7 @@ var trCtx=null, trN=0, trDrawn=false;
 function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888"; }
 function drawGlyph(ctx, n, g, color, outline){
   ctx.clearRect(0,0,n,n);
-  ctx.font='500 '+Math.round(n*0.6)+'px "Noto Sans Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif';
+  ctx.font='500 '+Math.round(n*0.6)+'px "Noto Serif Ethiopic","Kefa","Nyala","Abyssinica SIL",sans-serif';
   ctx.textAlign="center"; ctx.textBaseline="alphabetic";
   var m=ctx.measureText(g), up=m.actualBoundingBoxAscent||n*0.45, dn=m.actualBoundingBoxDescent||0, y=n/2+(up-dn)/2;
   ctx.fillStyle=color; ctx.fillText(g, n/2, y);
@@ -683,7 +683,7 @@ function initTracer(){
   bg.width=bg.height=fg.width=fg.height=n; trN=n; trDrawn=false;
   var paint=function(){ if(TR && document.getElementById("trbg")===bg) { var c=bg.getContext("2d"); c.globalAlpha=0.38; drawGlyph(c, n, TR.g, cssVar("--muted")); } };
   paint();
-  if (document.fonts && document.fonts.load) document.fonts.load('500 40px "Noto Sans Ethiopic"', TR.g).then(paint, function(){});
+  if (document.fonts && document.fonts.load) document.fonts.load('500 40px "Noto Serif Ethiopic"', TR.g).then(paint, function(){});
   var ctx=fg.getContext("2d"); trCtx=ctx;
   ctx.lineCap="round"; ctx.lineJoin="round"; ctx.lineWidth=n*0.055; ctx.strokeStyle=cssVar("--blue");
   var down=false, last=null;
@@ -724,7 +724,7 @@ function viewTip(){
   var t=TIPS[TIP];
   return '<div class="lesson tip"><div class="l-top"><button class="icon-btn" data-act="tipclose" aria-label="סגירה">✕</button><b style="flex:1">הסבר קצר</b></div>'+
     '<h2 class="ask">'+t.t+'</h2>'+t.h+'</div>'+
-    '<div class="l-foot"><div><button class="btn primary wide" data-act="start:deck:'+TIP+'">הבנתי, לשיעור</button></div></div>';
+    '<div class="l-foot"><div>'+(getDeck("deck",TIP)?'<button class="btn primary wide" data-act="start:deck:'+TIP+'">הבנתי, לשיעור</button>':'<button class="btn primary wide" data-act="tipclose">הבנתי</button>')+'</div></div>';
 }
 
 /* ---------- tibeb bands ----------
@@ -1080,7 +1080,7 @@ function viewLetters(){
 /* ---------- stories: read page by page, the Hebrew on tap ---------- */
 var RD=null;                       // {i: story index, p: page (pages.length = the word list), he: {} shown translations}
 function viewStories(){
-  var h='<h1 class="title">סיפורים</h1><p class="sub">סיפורים קצרים לקריאה. קוראים עמוד אחרי עמוד, והתרגום לעברית מופיע בלחיצה. בסוף כל סיפור יש תרגול קצר.</p><div class="stories">';
+  var h='<h1 class="title">סיפורים</h1><p class="sub">סיפורים קצרים לקריאה. קוראים עמוד אחרי עמוד, והתרגום לעברית מופיע בלחיצה. בסוף כל סיפור יש תרגול קצר.</p>'+(TIPS.punct?'<button class="btn wide" data-act="tip:punct" style="margin-bottom:1rem">סימני פיסוק באמהרית</button>':'')+'<div class="stories">';
   STORIES.forEach(function(st,i){
     var m=mastery(st.deck.items), n=0; st.pages.forEach(function(pg){ n+=pg.length; });
     h+='<button class="scard-story" data-act="story:'+i+'">'+weave(unitLook(i+2).mo, m.n?Math.round(100*m.seen/m.n):0, 12)+
