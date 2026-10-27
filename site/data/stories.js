@@ -1,6 +1,4 @@
-/* Short stories the teacher translated: [fidel, Latin, Hebrew] per sentence, pages in order.
-   The fidel is the teacher's, copied from her PDFs. The Latin and the Hebrew were written by Claude
-   and are marked "check" on the review page. Progress key of a sentence or word: "s:" + its fidel. */
+/* Short stories: [fidel, Latin, Hebrew] per sentence, pages in order. Progress key of a sentence or word: "s:" + its fidel. */
 window.ALEF = window.ALEF || {};
 ALEF.STORIES = [
  {
