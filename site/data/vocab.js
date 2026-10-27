@@ -1,5 +1,5 @@
 /* Vocabulary topics: [fidel, Hebrew, earlier fidel spelling kept as the progress key, Latin when the fidel alone reads differently].
-   The Latin is derived from the fidel. Words from amharicteacher.com are to be replaced before a public launch. */
+   The Latin is derived from the fidel. */
 window.ALEF = window.ALEF || {};
 ALEF.SITE = [
  {id:"s-pron", title:"כינויי גוף", cards:[

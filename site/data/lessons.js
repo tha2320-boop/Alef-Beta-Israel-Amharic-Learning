@@ -1,4 +1,4 @@
-/* Topics from the lessons: [Latin in the teacher's table notation, fidel where the slides give it, Hebrew, 1 = fidel added by Claude]
+/* Lesson topics: [Latin, fidel, Hebrew, 1 = fidel still to be checked]
    Never reorder or respell a card without keeping its progress key - see README. */
 window.ALEF = window.ALEF || {};
 ALEF.DECKS = [
@@ -885,7 +885,7 @@ ALEF.DECKS = [
  ]}
 ];
 
-/* fidel for cards whose slides gave only Latin (added by Claude, marked "check spelling" on the review page) */
+/* fidel for cards that have only a Latin spelling */
 ALEF.FID_FILL = {
  "Aman näw?":"አማን ነው?","Alähu":"አለሁ","Mnm al'lm":"ምንም አልልም",
  "Čaw":"ቻው","Mälkam k'än":"መልካም ቀን","Mälkam mšt":"መልካም ምሽት","Dähna wal":"ደህና ዋል","Dähna way":"ደህና ዋይ","Dähna walu":"ደህና ዋሉ",

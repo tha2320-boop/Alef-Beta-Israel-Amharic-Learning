@@ -422,8 +422,8 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .stories{display:grid; gap:.8rem}
 .scard-story{display:flex; flex-direction:column; align-items:flex-start; gap:.15rem; text-align:start; font:inherit; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:.9rem; padding:0 0 .9rem; overflow:hidden; cursor:pointer}
 .scard-story .weave{display:block; width:100%; margin:0 0 .7rem}
-.scard-story .st-am{font-size:1.5rem; font-weight:700; padding:0 1rem; line-height:1.4}
-.scard-story .st-he{font-weight:800; font-size:1.1rem; padding:0 1rem}
+.scard-story .st-he{font-size:1.35rem; font-weight:800; padding:0 1rem; line-height:1.35}
+.scard-story .st-am{font-size:1.05rem; font-weight:500; color:var(--muted); padding:0 1rem; line-height:1.4}
 .scard-story small{color:var(--muted); padding:0 1rem; font-size:.88rem}
 .reader .ask small{font-family:"Assistant",sans-serif; font-size:1rem; color:var(--muted); font-weight:600}
 .rd-pg{color:var(--muted); font-weight:700; margin:.2rem 0 1rem}
@@ -433,3 +433,12 @@ body{font-family:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif; font-si
 .sent .lat{color:var(--muted); margin:.2rem 0 .5rem; direction:ltr; text-align:right; unicode-bidi:isolate}
 .sent .he{font-weight:700; margin:0}
 .he-btn{font:inherit; font-size:.92rem; font-weight:700; color:var(--ink); background:transparent; border:1.5px dashed var(--line); border-radius:.6rem; padding:.35rem .8rem; cursor:pointer}
+
+h2.ask.st-title{font-weight:800}
+h2.ask.st-title small{display:block; font-size:1rem; font-weight:500; color:var(--muted); margin-top:.15rem}
+.pgroup{border:1.5px solid var(--line); border-radius:.9rem; margin:0 0 .6rem; background:var(--card)}
+.pgroup summary{display:flex; justify-content:space-between; gap:1rem; align-items:center; padding:.8rem 1rem; cursor:pointer; list-style:none}
+.pgroup summary::-webkit-details-marker{display:none}
+.pgroup summary small{color:var(--muted)}
+.pgroup .words{margin:0; padding:0 1rem .4rem}
+.pgroup .words .lat{font-weight:400; color:var(--muted)}

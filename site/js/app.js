@@ -61,13 +61,13 @@ LETTERS.forEach(function(L){
 var BY_ID = {}; LETTERS.forEach(function(L){ BY_ID[L.id]=L; });
 var START_SET = ["ለ","ሰ","ሸ","በ","ቨ","አ","ከ","ኸ","ዘ","ዠ","ደ","ጀ","ጰ","ጸ"];
 
-/* ---------- lesson decks (from the teacher's slides and the lesson summaries) ---------- */
-// [the teacher's Latin spelling, fidel where the slides give it, Hebrew]
+/* ---------- lesson decks ---------- */
+// [Latin spelling, fidel, Hebrew]
 var DECKS = (A.DECKS||[]).slice();
 
-// words from amharicteacher.com: [fidel, Hebrew]; the Latin spelling is derived from the fidel
+// vocabulary topics: [fidel, Hebrew]; the Latin spelling is derived from the fidel
 var SITE = A.SITE||[];
-// fidel -> Latin in the notation of the teacher's fidel tables: ä for the first order, e for the fifth,
+// fidel -> Latin in the notation of the letters chart: ä for the first order, e for the fifth,
 // š č ň ž k' s' for the consonants; the sixth order is written (ï) only on the vowel carriers
 var TR_BASE = {}; LETTERS.forEach(function(L){ TR_BASE[L.cp]=L; });
 var TR_LAB = {0x1248:"k'", 0x1288:"h", 0x12B0:"k", 0x1310:"g"};
@@ -101,7 +101,7 @@ function trKey(s){
 }
 var KEY_OF = A.KEY_OF||{};
 SITE.forEach(function(d){
-  d.src="site";
+  d.src="vocab";
   d.cards=d.cards.map(function(c){ return [c[3]||tr(c[0]), c[0], c[1], 0, trKey(c[2]||c[0])]; });   // c[3]: the reading the learner was taught, when the fidel alone would give another   // c[2]: an earlier spelling, kept as the progress key
   DECKS.push(d);
 });
@@ -378,7 +378,7 @@ function exampleFor(c){
     ALL.forEach(function(x){
       EX_BY_LAT[x.lat]=x;
       var t=x.fid.split(" ");
-      if (x.deck.src!=="site" && t.length>=2 && x.fid.indexOf("...")<0 && x.fid.indexOf("/")<0) EX_SENT.push({c:x, t:t.map(function(w){ return w.replace(/[?!,.፣።]/g,""); })});
+      if (x.deck.src!=="vocab" && t.length>=2 && x.fid.indexOf("...")<0 && x.fid.indexOf("/")<0) EX_SENT.push({c:x, t:t.map(function(w){ return w.replace(/[?!,.፣።]/g,""); })});
     });
     EX_SENT.sort(function(a,b){ return a.t.length-b.t.length; });
   }
@@ -434,7 +434,7 @@ function meetWords(items){
 function meetLetter(Lt){
   var G=groupOf(Lt.id), rules=G && (G.k==="g2"||G.k==="g3"), w=EXWORD[Lt.id];
   var gs=Lt.forms.map(function(f){ return f.g; }).filter(hasClip);
-  return {t:"learn", ask:'האות <span class="eth" lang="am">'+Lt.id+'</span> בשבע הצורות שלה', aud:G?G.k:null, auto:gs.length?gs:null,
+  return {t:"learn", ask:'האות <span class="eth" lang="am">'+Lt.id+'</span> בשבע הצורות שלה', auto:gs.length?gs:null,
     html:'<p class="lead">באמהרית כל אות היא הברה: עיצור ותנועה יחד. לכל עיצור יש שבע צורות, אחת לכל תנועה.'+(gs.length?' לחיצה על צורה משמיעה אותה.':'')+'</p>'+
       '<div class="lforms">'+Lt.forms.map(function(f){
         var inner='<span class="eth" lang="am">'+f.g+'</span><span class="hs">'+f.heb+'</span><span class="lat">'+esc(f.lat)+'</span><span class="rule">'+(rules?RULES[f.o]:"")+'</span>';
@@ -849,7 +849,7 @@ function chapters(){
       var forms=[]; (c.letters||[]).forEach(function(id){ if (BY_ID[id]) forms=forms.concat(BY_ID[id].forms); });
       list.push({t:c.t, part:part, decks:ds, letters:c.letters||[], forms:forms});
     });
-    var rest=DECKS.filter(function(d){ return !used[d.id] && (d.src==="site" ? 2 : 1)===part; });   // a topic added later and not filed yet
+    var rest=DECKS.filter(function(d){ return !used[d.id] && (d.src==="vocab" ? 2 : 1)===part; });   // a topic added later and not filed yet
     if (rest.length){ rest.forEach(function(d){ used[d.id]=1; }); list.push({t:"נושאים חדשים", part:part, decks:rest, letters:[], forms:[]}); }
   });
   list.forEach(function(c,i){ c.i=i; c.items=[]; c.decks.forEach(function(d){ d.part=c.part; c.items=c.items.concat(d.items); }); });
@@ -943,43 +943,9 @@ var EXWORD={"ለ":["ለስላሳ","läsïlasa","משקה קל"],"ሰ":["ሰላ�
   "ከ":["ከበሮ","käbäro","תוף"],"ዘ":["ዘፋኝ","zäfaň","זמר/ת"],"ደ":["ደስታ","dästa","שמחה"],"ጀ":["ጀበና","jäbäna","ג'בנה"],"ጸ":["ጸጉር","s'ägur","שיער"]};
 function groupOf(id){ for (var i=0;i<GROUPS.length;i++) if (GROUPS[i].ids.indexOf(id)>=0) return GROUPS[i]; return null; }
 
-/* recordings: decoded with Web Audio so they play without any media element */
-var playing=null;      // {key, src}
+var playing=null;      // a longer recording that is sounding, if any
 var chartMode="play";  // letters chart: a tap plays the form ("play") or opens writing practice ("trace")
 function stopAudio(){ clipStop(); if(playing){ try{ playing.src.onended=null; playing.src.stop(); }catch(e){} playing=null; } }
-function playAudio(key){
-  var was = playing && playing.key===key; stopAudio();
-  if (was){ render(); return; }
-  var b64=(window.FIDEL_AUDIO||{})[key]; if(!b64) return;
-  if (/\.(mp3|m4a|ogg|wav)$/i.test(b64)){      // a file next to the page (the stand-alone site) instead of embedded data
-    var el=new Audio(b64), me={key:key, src:{onended:null, stop:function(){ el.pause(); }}};
-    var over=function(){ if(playing===me){ playing=null; if(!TR&&!TIP&&(!L||(!L.done&&!L.failed&&cur().t==="learn"))) render(); } };
-    el.onended=over; el.onerror=over;
-    playing=me; render();
-    var pp=el.play(); if (pp && pp.catch) pp.catch(over);
-    return;
-  }
-  try {
-    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
-    actx=actx||new AC(); if(actx.state==="suspended") actx.resume();
-    var bin=atob(b64), buf=new Uint8Array(bin.length); for (var i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
-    var mine={key:key, src:null}; playing=mine; render();
-    var done=function(ab){
-      if (playing!==mine) return;
-      var src=actx.createBufferSource(); src.buffer=ab; src.connect(actx.destination);
-      src.onended=function(){ if(playing===mine){ playing=null; if(!TR&&!TIP&&(!L||(!L.done&&!L.failed&&cur().t==="learn"))) render(); } };
-      mine.src=src; src.start();
-    };
-    var fail=function(){ if(playing===mine){ playing=null; render(); } };
-    var pr=actx.decodeAudioData(buf.buffer, done, fail); if (pr && pr.catch) pr.catch(fail);
-  } catch(e){ playing=null; }
-}
-function audBtn(key,label){
-  if (!(window.FIDEL_AUDIO||{})[key]) return "";
-  var on = playing && playing.key===key;
-  return '<button class="aud'+(on?' on':'')+'" data-act="aud:'+key+'">'+(on?"עצירה":"\u25B6\uFE0E "+label)+'</button>';
-}
-
 /* single letter forms (LETTER_AUDIO): short clips, played without redrawing the page.
    The form that is sounding gets the class "on" (any element with data-clip="<form>"). */
 var CLIP={el:null, buf:{}, seq:null, src:null, tok:0};
@@ -996,7 +962,7 @@ function clipOne(g, done){
   var end=function(){ if(ended||tok!==CLIP.tok) return; ended=true; markClip(null); if(done) done(); };
   if(!s) return end();
   markClip(g);
-  if (/\.(mp3|m4a|ogg|wav)$/i.test(s)){          // a file next to the page (the website)
+  if (/\.(mp3|m4a|ogg|wav)$/i.test(s)){          // a file next to the page (the stand-alone site)
     var el=CLIP.el||(CLIP.el=new Audio()); CLIP.unlocking=false; el.muted=false; el.onended=end; el.onerror=end; el.src=s;
     var pp=el.play(); if(pp&&pp.catch) pp.catch(end);
     return;
@@ -1057,7 +1023,7 @@ function viewLetters(){
     '<button class="btn primary wide" data-act="start:letters"'+(P.length?'':' disabled')+'>תרגול אותיות</button>'+
     '<div class="note">האותיות מחולקות לארבע קבוצות לפי הצורה שלהן. סמנו ✓ ליד כל אות שכבר למדתם, ורק היא תיכנס לתרגול.</div>'+
     '<details class="rules"><summary>איך מזהים את שבע הצורות?</summary><p>כל אות מופיעה בשבע צורות, אחת לכל תנועה: ä, u, i, a, e, ï, o. באותיות עם שתי רגליים ועם שלוש רגליים השינוי עקבי:</p><ol>'+
-    RULES.map(function(r){ return '<li>'+r+'</li>'; }).join("")+'</ol>'+audBtn("vow","האזנה לשבע התנועות")+'</details>'+
+    RULES.map(function(r){ return '<li>'+r+'</li>'; }).join("")+'</ol>'+'</details>'+
     '<details class="rules"><summary>איך קוראים את הכתיב הלטיני?</summary><p>המילים והמשפטים כתובים באותו סימון של לוח האותיות:</p><ul class="key"><li><b class="lat">ä</b> התנועה של הצורה הראשונה, כמו סגול: <span class="lat">lä</span> = לֶ. באותיות א, ע ו-<span class="eth" lang="am">ኀ</span> הצורה הראשונה היא <span class="lat">a</span></li><li><b class="lat">e</b> התנועה של הצורה החמישית, כמו צירה: <span class="lat">le</span> = לֵי</li><li><b class="lat">ï</b> התנועה של הצורה השישית, כמו שווא נע. כשהיא לא נשמעת, לא כותבים אותה</li><li><b class="lat">š</b> = ש, <b class="lat">č</b> = צ\', <b class="lat">ž</b> = ז\', <b class="lat">ň</b> = ני</li><li><b class="lat">k\' t\' č\' p\' s\'</b> עיצורים מודגשים. הגרש מסמן את ההדגשה</li></ul></details>';
   h+=modeBox();
   var rowHTML=function(Lt){
@@ -1071,7 +1037,7 @@ function viewLetters(){
   GROUPS.forEach(function(G){
     var onN=G.ids.filter(function(id){ return state.letters.indexOf(id)>=0; }).length, all=onN===G.ids.length;
     h+='<div class="ghead"><h2>'+G.t+'</h2><small>'+onN+' מתוך '+G.ids.length+' בתרגול</small></div>'+
-      '<div class="gacts">'+audBtn(G.k,"האזנה לצורה הראשונה")+'<button class="aud" data-act="grp:'+G.k+'">'+(all?"הסרת הקבוצה מהתרגול":"הוספת כל הקבוצה")+'</button></div>'+
+      '<div class="gacts"><button class="aud" data-act="grp:'+G.k+'">'+(all?"הסרת הקבוצה מהתרגול":"הוספת כל הקבוצה")+'</button></div>'+
       '<div class="chart"><div class="crow head"><div></div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div>'+
       G.ids.map(function(id){ return rowHTML(BY_ID[id]); }).join("")+'</div>';
   });
@@ -1084,7 +1050,7 @@ function viewStories(){
   STORIES.forEach(function(st,i){
     var m=mastery(st.deck.items), n=0; st.pages.forEach(function(pg){ n+=pg.length; });
     h+='<button class="scard-story" data-act="story:'+i+'">'+weave(unitLook(i+2).mo, m.n?Math.round(100*m.seen/m.n):0, 12)+
-      '<span class="st-am eth" lang="am">'+esc(st.am)+'</span><span class="st-he">'+esc(st.he)+'</span>'+
+      '<span class="st-he">'+esc(st.he)+'</span><span class="st-am eth" lang="am">'+esc(st.am)+'</span>'+
       '<small>'+st.pages.length+' עמודים, '+n+' משפטים'+(m.seen?' · '+m.seen+' מתוך '+m.n+' כבר תורגלו':'')+'</small></button>';
   });
   return h+'</div>';
@@ -1093,7 +1059,7 @@ function viewReader(){
   var st=STORIES[RD.i], P=st.pages.length, last=RD.p>=P, pct=Math.round(100*Math.min(RD.p+1,P+1)/(P+1));
   var h='<div class="lesson reader"><div class="l-top"><button class="icon-btn" data-act="rdclose" aria-label="סגירה">✕</button>'+
     '<div class="lbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+weave(unitLook(RD.i+2).mo,pct,14)+'</div></div>'+
-    '<h2 class="ask"><span class="eth" lang="am">'+esc(st.am)+'</span> <small>'+esc(st.he)+'</small></h2>';
+    '<h2 class="ask st-title">'+esc(st.he)+'<small class="eth" lang="am">'+esc(st.am)+'</small></h2>';
   if (!last){
     h+='<p class="rd-pg">עמוד '+(RD.p+1)+' מתוך '+P+'</p><div class="rd-page">'+st.pages[RD.p].map(function(x,k){
       var key=RD.p+"-"+k, on=!!RD.he[key];
@@ -1118,7 +1084,22 @@ function viewWords(){
   if (n<4) h+='<p class="sub" style="margin-top:1rem">'+(n?'יש כאן '+n+' מילים. ':'')+'צריך לפחות 4 מילים כדי להתחיל תרגול.</p>';
   if (n) h+='<ul class="words">'+state.words.slice().reverse().map(function(w){
       return '<li><div class="pair"><div class="am">'+esc(w.a)+'</div><div class="he">'+esc(w.h)+'</div></div><button data-act="del:'+esc(w.id)+'">מחיקה</button></li>'; }).join("")+'</ul>';
-  return h;
+  return h+practicedHTML();
+}
+/* words met in practice: every word answered at least once, grouped by story or topic, stories first */
+function practicedHTML(){
+  var groups=[], total=0;
+  STORIES.map(function(st){ return st.deck; }).concat(DECKS).forEach(function(d){
+    var seen={}, its=d.items.filter(function(x){ if(x.sent || seen[x.g] || !(x.g in state.str)) return false; seen[x.g]=1; return true; });
+    if (its.length){ groups.push({d:d, its:its}); total+=its.length; }
+  });
+  var h='<h2 class="title" style="margin-top:2rem">מילים מהתרגול</h2>';
+  if (!total) return h+'<p class="sub">כאן יופיעו המילים שפגשתם בתרגול: בסיפורים ובשיעורים במסלול.</p>';
+  h+='<p class="sub">'+total+' מילים שכבר פגשתם בתרגול, לפי סיפור ונושא.</p>';
+  return h+groups.map(function(G){
+    return '<details class="pgroup"><summary><b>'+esc(G.d.title)+'</b><small>'+G.its.length+' מילים</small></summary><ul class="words">'+
+      G.its.map(function(x){ return '<li><div class="pair"><div class="am">'+(x.fid?'<span class="eth" lang="am">'+esc(x.fid)+'</span> ':'')+'<span class="lat">'+esc(x.lat)+'</span></div><div class="he">'+esc(x.he)+'</div></div></li>'; }).join("")+'</ul></details>';
+  }).join("");
 }
 function addWord(){
   var a=document.getElementById("wa"), h=document.getElementById("wh");
@@ -1156,7 +1137,7 @@ function viewLesson(){
     '<div class="hearts" role="img" aria-label="נשארו '+L.hearts+' מתוך '+HEARTS+' לבבות">'+[0,1,2,3,4].map(function(i){ return '<i'+(i<L.hearts?'':' class="off"')+'></i>'; }).join("")+'</div></div><h2 class="ask">'+st.ask+'</h2>';
   var ready=false;
   if (st.t==="learn"){
-    return h+st.html+(st.aud?'<div class="gacts">'+audBtn(st.aud,"האזנה לצורה הראשונה של אותיות הקבוצה")+'</div>':'')+
+    return h+st.html+
       '</div><div class="l-foot"><div><button class="btn primary wide" data-act="learned">הבנתי, לתרגול</button></div></div>';
   }
   if (st.t==="mc"){
@@ -1229,7 +1210,6 @@ app.addEventListener("click", function(e){
     case "quit": stopAudio(); quit(); break;
     case "retry": startLesson(L.kind, L.id); break;
     case "trace": stopAudio(); openTracer(v); break;
-    case "aud": playAudio(v); break;
     case "clip": playClips([v]); break;
     case "clips": playClips(v.split(",")); break;
     case "cmode": stopAudio(); chartMode = v==="trace" ? "trace" : "play"; render(); break;
