@@ -12,6 +12,7 @@
 | `site/data/lessons.js` | הנושאים מהשיעורים |
 | `site/data/vocab.js` | נושאי אוצר המילים |
 | `site/data/tips.js` | הסברי הדקדוק |
+| `site/data/stories.js` | הסיפורים הקצרים: פידל מהמורה, כתיב לטיני ועברית לבדיקה |
 | `site/audio/` | חמש ההקלטות של המורה |
 | `site/audio/letters/` | הקלטה לכל צורה של אות, `L-<קוד>.mp3` (הרשימה ב-`site/js/audio.js`, LETTER_AUDIO) |
 | `tests/` | הבדיקות, ורשימת מפתחות ההתקדמות (`keys.json`) |

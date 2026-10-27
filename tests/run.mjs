@@ -68,6 +68,19 @@ console.log("index.html");
   await page.click('[data-act="tab:letters"]');
   await page.click('[data-act="start:letters"]');
   ok(await playLesson(page), "a letters lesson runs to the end");
+
+  // stories: read one to the end, then its quiz
+  await page.click('.end [data-act="quit"]').catch(() => {});
+  await page.click('[data-act="tab:stories"]');
+  const nStories = await page.$$eval(".scard-story", (b) => b.length);
+  ok(nStories >= 4, `${nStories} stories in the stories tab`);
+  await page.click('[data-act="story:0"]');
+  await page.click('[data-act^="rhe:"]');
+  ok(!!(await page.$(".sent .he")), "a tap shows the Hebrew of a sentence");
+  for (let i = 0; i < 20 && !(await page.$('[data-act^="start:story"]')); i++) await page.click('[data-act="rdgo:1"]');
+  ok(!!(await page.$(".meet .mrow")), "a story ends with its word list");
+  await page.click('[data-act^="start:story"]');
+  ok(await playLesson(page), "a story quiz runs to the end");
   ok(errors.length === 0, "no script errors" + (errors.length ? ": " + errors[0] : ""));
   await page.close();
 }
