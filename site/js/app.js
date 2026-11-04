@@ -315,7 +315,7 @@ function mcOptions(target){
 }
 function wordMC(target){
   var opts=mcOptions(target), toHe=Math.random()<0.5;
-  return {t:"mc", g:target.g, answer:opts.indexOf(target),
+  return {t:"mc", g:target.g, answer:opts.indexOf(target), fbClips:wordClips(target),
     ask: toHe ? "מה הפירוש?" : "איך אומרים באמהרית?",
     prompt: toHe ? amHTML(target,"pm") : '<span class="big">'+esc(target.he)+'</span>',
     opts: opts.map(function(o){ return toHe ? esc(o.he) : amHTML(o); }),
@@ -330,7 +330,7 @@ function wordBuild(target){
     if (!!c.fid!==fidel) return;
     toks(c).forEach(function(w){ if(extra.length<3 && w!=="..." && w!=="/" && !have[w.toLowerCase()]){ have[w.toLowerCase()]=1; extra.push(w); } });
   });
-  return {t:"build", g:target.g, fidel:fidel, ask:"הרכיבו את המשפט באמהרית", prompt:'<span class="big">'+esc(target.he)+'</span>',
+  return {t:"build", g:target.g, fidel:fidel, fbClips:wordClips(target), ask:"הרכיבו את המשפט באמהרית", prompt:'<span class="big">'+esc(target.he)+'</span>',
     tiles:shuffle(words.concat(extra)), solution:words.join(" "), picked:[], answerHTML: amHTML(target)+' = '+esc(target.he)+exHTML(target)};
 }
 function spellable(c){
@@ -344,7 +344,7 @@ function wordSpell(target){
   shuffle(chars.slice()).forEach(function(x){
     shuffle(formOf(x).L.forms.slice()).forEach(function(f){ if(extra.length<3 && !have[f.g]){ have[f.g]=1; extra.push(f.g); } });
   });
-  return {t:"build", spell:true, sep:"", g:target.g, ask:"אייתו את המילה בפידל",
+  return {t:"build", spell:true, sep:"", g:target.g, fbClips:wordClips(target), ask:"אייתו את המילה בפידל",
     prompt:'<span class="big">'+esc(target.he)+'</span><span class="sndl lat" style="display:block">'+esc(target.lat)+'</span>',
     tiles:shuffle(chars.concat(extra)), solution:target.fid, picked:[], answerHTML: amHTML(target)+' = '+esc(target.he)+exHTML(target)};
 }
@@ -426,10 +426,16 @@ function buildWordLesson(deck){
   return interleave(mcs, matches);
 }
 /* teaching screens: shown before the questions, never graded */
+function wordRow(fid, lat, he){                 // a word on a teaching screen or a word list: a tap plays it when it has a recording
+  var inner=(fid?'<span class="eth" lang="am">'+esc(fid)+'</span>':'')+'<span class="lat">'+esc(lat)+'</span><span class="he">'+esc(he)+'</span>';
+  return fid && hasClip(fid) ? '<button class="mrow" data-act="clip:'+esc(fid)+'" data-clip="'+esc(fid)+'" aria-label="השמעה של '+esc(fid)+'">'+inner+'</button>' : '<div class="mrow">'+inner+'</div>';
+}
+function wordClips(c){ return c.fid && hasClip(c.fid) ? [c.fid] : null; }
 function meetWords(items){
-  return {t:"learn", ask: items.length>1 ? "מילים חדשות" : "מילה חדשה",
-    html:'<p class="lead">קראו בקול, ואז נתרגל.</p><div class="meet">'+items.map(function(c){
-      return '<div class="mrow">'+(c.fid?'<span class="eth" lang="am">'+esc(c.fid)+'</span>':'')+'<span class="lat">'+esc(c.lat)+'</span><span class="he">'+esc(c.he)+'</span></div>'; }).join("")+'</div>'};
+  var gs=items.map(function(c){ return c.fid; }).filter(function(f){ return f && hasClip(f); });
+  return {t:"learn", ask: items.length>1 ? "מילים חדשות" : "מילה חדשה", auto:gs.length?gs:null,
+    html:'<p class="lead">קראו בקול, ואז נתרגל.'+(gs.length?' לחיצה על מילה משמיעה אותה.':'')+'</p><div class="meet">'+items.map(function(c){
+      return wordRow(c.fid, c.lat, c.he); }).join("")+'</div>'};
 }
 function meetLetter(Lt){
   var G=groupOf(Lt.id), rules=G && (G.k==="g2"||G.k==="g3"), w=EXWORD[Lt.id];
@@ -946,10 +952,11 @@ function groupOf(id){ for (var i=0;i<GROUPS.length;i++) if (GROUPS[i].ids.indexO
 var playing=null;      // a longer recording that is sounding, if any
 var chartMode="play";  // letters chart: a tap plays the form ("play") or opens writing practice ("trace")
 function stopAudio(){ clipStop(); if(playing){ try{ playing.src.onended=null; playing.src.stop(); }catch(e){} playing=null; } }
-/* single letter forms (LETTER_AUDIO): short clips, played without redrawing the page.
-   The form that is sounding gets the class "on" (any element with data-clip="<form>"). */
+/* short clips: single letter forms (LETTER_AUDIO) and whole words (WORD_AUDIO, keyed by the word in fidel),
+   played without redrawing the page. What is sounding gets the class "on" (any element with data-clip="<key>"). */
 var CLIP={el:null, buf:{}, seq:null, src:null, tok:0};
-function hasClip(g){ return !!(window.LETTER_AUDIO||{})[g]; }
+function clipSrc(g){ var W=window.WORD_AUDIO||{}; return (window.LETTER_AUDIO||{})[g] || W[g] || W[String(g).replace(/[?!.,፡-፨]/g,"")]; }   // a word is found with or without its punctuation
+function hasClip(g){ return !!clipSrc(g); }
 function markClip(g){ var els=document.querySelectorAll("[data-clip]"); for (var i=0;i<els.length;i++) els[i].classList.toggle("on", els[i].getAttribute("data-clip")===g); }
 function clipStop(){
   CLIP.tok++; if(CLIP.seq){ CLIP.seq.stop=true; CLIP.seq=null; }
@@ -958,7 +965,7 @@ function clipStop(){
   markClip(null);
 }
 function clipOne(g, done){
-  var s=(window.LETTER_AUDIO||{})[g], tok=CLIP.tok, ended=false;
+  var s=clipSrc(g), tok=CLIP.tok, ended=false;
   var end=function(){ if(ended||tok!==CLIP.tok) return; ended=true; markClip(null); if(done) done(); };
   if(!s) return end();
   markClip(g);
@@ -1066,8 +1073,7 @@ function viewReader(){
       return '<div class="sent"><p class="eth" lang="am">'+esc(x[0])+'</p><p class="lat">'+esc(x[1])+'</p>'+
         (on?'<p class="he">'+esc(x[2])+'</p>':'<button class="he-btn" data-act="rhe:'+key+'">הצגת התרגום</button>')+'</div>'; }).join("")+'</div>';
   } else {
-    h+='<p class="rd-pg">מילים מהסיפור</p><div class="meet">'+st.words.map(function(w){
-      return '<div class="mrow"><span class="eth" lang="am">'+esc(w[0])+'</span><span class="lat">'+esc(w[1])+'</span><span class="he">'+esc(w[2])+'</span></div>'; }).join("")+'</div>';
+    h+='<p class="rd-pg">מילים מהסיפור</p><div class="meet">'+st.words.map(function(w){ return wordRow(w[0], w[1], w[2]); }).join("")+'</div>';
   }
   h+='</div><div class="l-foot"><div class="row">';
   if (!last) h+='<button class="btn" data-act="rdgo:-1" style="flex:1"'+(RD.p?'':' disabled')+'>הקודם</button><button class="btn primary" data-act="rdgo:1" style="flex:2">'+(RD.p===P-1?'למילים מהסיפור':'הבא')+'</button>';
