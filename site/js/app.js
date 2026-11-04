@@ -955,7 +955,7 @@ function stopAudio(){ clipStop(); if(playing){ try{ playing.src.onended=null; pl
 /* short clips: single letter forms (LETTER_AUDIO) and whole words (WORD_AUDIO, keyed by the word in fidel),
    played without redrawing the page. What is sounding gets the class "on" (any element with data-clip="<key>"). */
 var CLIP={el:null, buf:{}, seq:null, src:null, tok:0};
-function clipSrc(g){ return (window.LETTER_AUDIO||{})[g] || (window.WORD_AUDIO||{})[g]; }
+function clipSrc(g){ var W=window.WORD_AUDIO||{}; return (window.LETTER_AUDIO||{})[g] || W[g] || W[String(g).replace(/[?!.,፡-፨]/g,"")]; }   // a word is found with or without its punctuation
 function hasClip(g){ return !!clipSrc(g); }
 function markClip(g){ var els=document.querySelectorAll("[data-clip]"); for (var i=0;i<els.length;i++) els[i].classList.toggle("on", els[i].getAttribute("data-clip")===g); }
 function clipStop(){
