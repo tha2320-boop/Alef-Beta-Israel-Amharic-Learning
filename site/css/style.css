@@ -446,3 +446,36 @@ h2.ask.st-title small{display:block; font-size:1rem; font-weight:500; color:var(
 .meet button.mrow{width:100%; font:inherit; color:inherit; text-align:start; cursor:pointer}
 .meet button.mrow .eth::after{content:"\25B6\FE0E"; font-family:"Assistant",sans-serif; font-size:.75rem; color:var(--muted); margin-inline-start:.4rem; vertical-align:middle}
 .meet .mrow.on{background:var(--soft); box-shadow:inset 0 0 0 1.5px var(--ink)}
+
+/* combo: a counter over the band, which glows from 5 in a row */
+.lbar{position:relative}
+.combo{position:absolute; top:-1.15rem; left:50%; transform:translateX(-50%); font-family:"Suez One","Assistant",serif; font-size:.8rem; color:var(--gold-d); white-space:nowrap; letter-spacing:.03em}
+.combo.pop{animation:cpop .45s ease}
+@keyframes cpop{0%{transform:translateX(-50%) scale(.6)} 55%{transform:translateX(-50%) scale(1.35)} 100%{transform:translateX(-50%) scale(1)}}
+.lbar.hot .weave{filter:saturate(1.5) brightness(1.08); box-shadow:0 0 .6rem rgba(244,180,26,.55)}
+/* feedback: the jebena reacts */
+.fb-row{display:flex; align-items:center; gap:.6rem; margin-bottom:.2rem}
+.fb-row .fb-t{margin:0}
+.mascot.cheer{animation:cheer .5s ease}
+@keyframes cheer{0%{transform:translateY(6px) scale(.85)} 50%{transform:translateY(-6px) rotate(-6deg)} 100%{transform:none}}
+.mascot.droop{animation:droop .5s ease}
+@keyframes droop{0%{transform:rotate(0)} 40%{transform:rotate(8deg)} 70%{transform:rotate(-4deg)} 100%{transform:none}}
+/* listening */
+.hear{display:flex; justify-content:center; gap:.8rem; flex-wrap:wrap}
+.listen.slow{padding:.9rem 1.2rem}
+.listen.slow .pl{font-size:1.8rem}
+/* perfect lesson */
+.end.perfect h2{color:var(--gold-d)}
+.pmark{font-size:1.5rem; color:var(--ink)!important; margin:.2rem 0 .3rem!important}
+.pmark .eth{font-size:1.8rem; font-weight:700}
+/* streak */
+.flame{width:9rem; margin:1rem auto 0; animation:glow 1.6s ease-in-out infinite alternate}
+.flame svg{width:100%; height:auto; display:block; animation:ignite .7s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes ignite{from{transform:scale(.2) rotate(-30deg); opacity:0} to{transform:none; opacity:1}}
+@keyframes glow{from{filter:drop-shadow(0 0 .3rem rgba(244,180,26,.35))} to{filter:drop-shadow(0 0 1.1rem rgba(212,60,40,.55))}}
+.sweek{display:grid; grid-template-columns:repeat(7,1fr); gap:.3rem; margin:0 0 2rem; padding:.9rem .4rem; border:1.5px solid var(--line); border-radius:.9rem}
+.sday{display:flex; flex-direction:column; align-items:center; gap:.4rem}
+.sday small{font-weight:700; color:var(--muted)} .sday.today small{color:var(--ink)}
+.sday i{width:1.1rem; height:1.1rem; transform:rotate(45deg); border-radius:2px; background:var(--line)}
+.sday.on i{background:#F4B41A} .sday.today.on i{background:#D43C28; box-shadow:0 0 .5rem rgba(212,60,40,.6)}
+@media (prefers-reduced-motion:reduce){ .combo.pop,.mascot.cheer,.mascot.droop,.flame,.flame svg{animation:none} }

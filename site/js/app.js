@@ -264,6 +264,8 @@ function sound(k){
     else if (k==="no"){ tone(220,t,.2,"triangle",.2); tone(160,t+.15,.28,"triangle",.2); }
     else if (k==="win"){ [523,659,784,1047].forEach(function(f,i){ tone(f,t+i*.12,.24); }); }
     else if (k==="pair"){ tone(784,t,.1,"sine",.1); }
+    else if (k==="combo"){ tone(660,t,.1); tone(880,t+.08,.1); tone(1175,t+.16,.22); }
+    else if (k==="flame"){ [392,523,659,784,1047].forEach(function(f,i){ tone(f,t+i*.09,.3,"sine",.16); }); }
   } catch(e){}
 }
 
@@ -320,6 +322,21 @@ function wordMC(target){
     prompt: toHe ? amHTML(target,"pm") : '<span class="big">'+esc(target.he)+'</span>',
     opts: opts.map(function(o){ return toHe ? esc(o.he) : amHTML(o); }),
     answerHTML: amHTML(target)+' = '+esc(target.he)+exHTML(target)};
+}
+/* listening: hear a recorded word, pick how it is written */
+function listenable(c){ return !!(c.fid && hasClip(c.fid)); }
+function wordListen(target){
+  var opts=mcOptions(target);
+  return {t:"mc", g:target.g, answer:opts.indexOf(target), auto:[target.fid], fbClips:[target.fid], listen:true,
+    ask:"מה שמעתם?",
+    prompt:'<div class="hear"><button class="listen" data-act="clip:'+esc(target.fid)+'" data-clip="'+esc(target.fid)+'" aria-label="השמעה"><span class="pl">\u25B6\uFE0E</span>השמעה</button>'+
+      '<button class="listen slow" data-act="slow:'+esc(target.fid)+'" aria-label="השמעה לאט"><span class="pl">\u25B6\uFE0E</span>לאט</button></div>',
+    opts: opts.map(function(o){ return amHTML(o); }),
+    answerHTML: amHTML(target)+' = '+esc(target.he)+exHTML(target)};
+}
+function askWord(t){                              // which kind of question a word gets
+  if (listenable(t) && Math.random()<0.35) return wordListen(t);
+  return spellable(t) && Math.random()<0.3 ? wordSpell(t) : buildable(t) && Math.random()<0.5 ? wordBuild(t) : wordMC(t);
 }
 function toks(c){ return (c.fid||c.lat).split(" "); }
 function buildable(c){ var w=toks(c), t=c.fid||c.lat; return w.length>=2 && w.length<=6 && t.indexOf("...")<0 && t.indexOf("/")<0; }
@@ -415,7 +432,7 @@ function buildWordLesson(deck){
   var dr=drawer(deck.items), mcs=[], matches=[];
   var total=dr.left(); if (total<4) return [];
   var nMC=Math.min(6,total);
-  for (var i=0;i<nMC;i++){ var t=dr.draw(); mcs.push(spellable(t) && Math.random()<0.3 ? wordSpell(t) : buildable(t) && Math.random()<0.5 ? wordBuild(t) : wordMC(t)); }
+  for (var i=0;i<nMC;i++){ var t=dr.draw(); mcs.push(askWord(t)); }
   for (var m=0;m<2;m++){
     var set=[], sh={}, sl={};
     var add=function(c){ if(set.length<4 && !sh[c.he] && !sl[c.lat]){ sh[c.he]=1; sl[c.lat]=1; set.push(c); } };
@@ -473,7 +490,7 @@ function buildPathLesson(deck){
   var k=curStep(deck), S = k<0 ? deck.items : stepsOf(deck)[k];
   var dr=drawer(S); if (dr.left()<4) return buildWordLesson(deck);
   var used={};
-  var ask=function(t){ used[t.g]=1; return spellable(t) && Math.random()<0.3 ? wordSpell(t) : buildable(t) && Math.random()<0.5 ? wordBuild(t) : wordMC(t); };
+  var ask=function(t){ used[t.g]=1; return askWord(t); };
   var nMC=Math.min(6,dr.left()), T=[];
   for (var i=0;i<nMC;i++) T.push(dr.draw());
   T.forEach(function(t){ used[t.g]=1; });
@@ -503,7 +520,7 @@ function buildStoryLesson(deck){
   var W=drawer(deck.items.filter(function(c){ return !c.sent; })), S=drawer(deck.items.filter(function(c){ return c.sent; }));
   var steps=[], tw=[]; while (W.left() && tw.length<4) tw.push(W.draw());
   var nw=tw.filter(function(c){ return isNew(c.g); }); if (nw.length) steps.push(meetWords(nw));
-  tw.forEach(function(t){ steps.push(spellable(t) && Math.random()<0.3 ? wordSpell(t) : wordMC(t)); });
+  tw.forEach(function(t){ steps.push(listenable(t) && Math.random()<0.35 ? wordListen(t) : spellable(t) && Math.random()<0.3 ? wordSpell(t) : wordMC(t)); });
   var mw=tw.slice(); while (W.left() && mw.length<4) mw.push(W.draw());
   if (mw.length===4) steps.push(wordMatch(shuffle(mw)));
   for (var i=0;i<4 && S.left();i++){ var t=S.draw(); steps.push(buildable(t) && Math.random()<0.6 ? wordBuild(t) : wordMC(t)); }
@@ -577,8 +594,18 @@ function buildLetterLesson(only){
 
 /* ---------- lesson engine ---------- */
 var L=null, HEARTS=5;
-var GOBEZ='<span class="eth" lang="am">ጎበዝ</span> <small class="lat">gobäz</small>';     // "gobez": the praise word the author grew up with
-var PRAISE=["נכון",GOBEZ,"בדיוק כך","יפה","זהו","מדויק"];
+/* praise after a right answer: Hebrew, and Amharic words of encouragement chosen by the author */
+var PRAISE_AM=[["ጎበዝ","gobäz"],["አንበሳ","anbäsa"],["ጀግና","jägna"]].map(function(w){ return '<span class="eth" lang="am">'+w[0]+'</span> <small class="lat">'+w[1]+'</small>'; });
+var PRAISE=["כל הכבוד","מעולה"].concat(PRAISE_AM), lastPraise=-1;
+var COMBO_MARKS=[3,5,8,10,15,20,25,30];
+function pickPraise(){                            // a different one from last time
+  var i; do { i=Math.floor(Math.random()*PRAISE.length); } while (PRAISE.length>1 && i===lastPraise);
+  lastPraise=i; return PRAISE[i];
+}
+function praiseTitle(){
+  if (COMBO_MARKS.indexOf(L.combo)>=0){ var a=PRAISE_AM[Math.floor(Math.random()*PRAISE_AM.length)]; return a+'<small>'+L.combo+' ברצף</small>'; }
+  return pickPraise();
+}
 function startLesson(kind,id){
   var steps, title;
   if (kind==="letters"){ steps=buildLetterLesson(); title="אותיות"; }
@@ -587,7 +614,7 @@ function startLesson(kind,id){
   if (!steps.length) return;
   touched={};
   var ui=5; if (kind==="lset") ui=+id; else if (kind==="story") ui=d.si+2; else if (kind==="deck") chapters().forEach(function(c){ if (c.decks.indexOf(d)>=0) ui=c.i; });
-  L={kind:kind, id:id, title:title, look:unitLook(ui), steps:steps, i:0, hearts:HEARTS, right:0, wrong:0, combo:0, phase:"ask", sel:null, ok:null};
+  L={kind:kind, id:id, title:title, look:unitLook(ui), steps:steps, i:0, hearts:HEARTS, right:0, wrong:0, combo:0, best:0, pop:false, phase:"ask", sel:null, ok:null};
   render(); window.scrollTo(0,0);
 }
 function cur(){ return L.steps[L.i]; }
@@ -607,8 +634,9 @@ function check(){
   else if (st.t==="build"){ if (!st.picked.length) return; ok = st.picked.map(function(i){return st.tiles[i];}).join(st.sep===undefined?" ":st.sep)===st.solution; }
   else return;
   L.phase="fb"; L.ok=ok;
-  if (ok){ L.right++; L.combo++; bump(st.g,1); sound("ok"); }
+  if (ok){ L.right++; L.combo++; bump(st.g,1); comboUp(); }
   else { L.wrong++; L.combo=0; L.hearts--; bump(st.g,-2); sound("no"); }
+  L.praise = ok ? praiseTitle() : null;
   save(); render();
   if (st.fbClips) autoClips(st.fbClips, 380);
 }
@@ -622,7 +650,7 @@ function matchTap(side,id){
       if (Object.keys(st.done).length===st.left.length){
         var clean=!Object.keys(st.errs).length;
         st.gs.forEach(function(g,i){ bump(g, st.errs[i]?-1:1); });
-        L.phase="fb"; L.ok=true; L.right++; L.combo = clean ? L.combo+1 : 0; sound("ok"); save();
+        L.phase="fb"; L.ok=true; L.right++; if (clean){ L.combo++; comboUp(); } else { L.combo=0; sound("ok"); } L.praise=praiseTitle(); save();
       }
     } else {
       st.errs[st.selL]=1; st.errs[st.selR]=1; st.flash=[st.selL,st.selR]; L.wrong++; L.combo=0; sound("no");
@@ -630,6 +658,10 @@ function matchTap(side,id){
     st.selL=null; st.selR=null;
   }
   render();
+}
+function comboUp(){                              // a right answer: the combo grows, with a brighter sound at the marks
+  L.best=Math.max(L.best,L.combo); L.pop=true;
+  sound(COMBO_MARKS.indexOf(L.combo)>=0 && L.combo>=5 ? "combo" : "ok");
 }
 function learned(){
   if (!L || L.done || L.failed || cur().t!=="learn") return;
@@ -640,7 +672,7 @@ function learned(){
 function cont(){
   if (!L || L.phase!=="fb") return;
   if (L.hearts<=0){ L.failed=true; render(); window.scrollTo(0,0); return; }
-  L.i++;
+  L.pop=false; L.i++;
   if (L.i>=L.steps.length) return finish();
   L.phase="ask"; L.sel=null; L.ok=null; render(); window.scrollTo(0,0);
 }
@@ -648,7 +680,7 @@ function finish(){
   var gain=10+(L.wrong===0?5:0), t=today();
   if (state.dayKey!==t){ state.dayKey=t; state.dayXp=0; }
   state.xp+=gain; state.dayXp+=gain;
-  if (state.lastDay!==t){ state.streak = state.lastDay===yesterday() ? state.streak+1 : 1; state.lastDay=t; }
+  if (state.lastDay!==t){ state.streak = state.lastDay===yesterday() ? state.streak+1 : 1; state.lastDay=t; L.newDay=true; }
   L.done=true; L.gain=gain; save(); sound("win"); render(); window.scrollTo(0,0);
 }
 function quit(){ L=null; render(); }
@@ -964,13 +996,15 @@ function clipStop(){
   if(CLIP.src){ try{ CLIP.src.onended=null; CLIP.src.stop(); }catch(e){} CLIP.src=null; }
   markClip(null);
 }
-function clipOne(g, done){
+function clipOne(g, done, rate){
   var s=clipSrc(g), tok=CLIP.tok, ended=false;
   var end=function(){ if(ended||tok!==CLIP.tok) return; ended=true; markClip(null); if(done) done(); };
   if(!s) return end();
   markClip(g);
-  if (/\.(mp3|m4a|ogg|wav)$/i.test(s)){          // a file next to the page (the stand-alone site)
-    var el=CLIP.el||(CLIP.el=new Audio()); CLIP.unlocking=false; el.muted=false; el.onended=end; el.onerror=end; el.src=s;
+  var file=/\.(mp3|m4a|ogg|wav)$/i.test(s);
+  if (file || rate){                              // a file next to the page (the stand-alone site), or any slowed clip
+    var el=CLIP.el||(CLIP.el=new Audio()); CLIP.unlocking=false; el.muted=false; el.onended=end; el.onerror=end; el.src=file ? s : "data:audio/mpeg;base64,"+s;
+    el.playbackRate=rate||1; if ("preservesPitch" in el) el.preservesPitch=true;
     var pp=el.play(); if(pp&&pp.catch) pp.catch(end);
     return;
   }
@@ -988,14 +1022,14 @@ function clipOne(g, done){
     var pr=actx.decodeAudioData(b.buffer, go, end); if(pr&&pr.catch) pr.catch(end);
   } catch(e){ end(); }
 }
-function playClips(gs){                           // one form after another, a short pause between
+function playClips(gs, rate){                     // one form after another, a short pause between
   var had=!!playing; stopAudio(); if (had) render();
   gs=(gs||[]).filter(hasClip); if(!gs.length) return;
   var run={stop:false}, i=0; CLIP.seq=run;
   var next=function(){
     if(run.stop) return;
     if(i>=gs.length){ if(CLIP.seq===run) CLIP.seq=null; return; }
-    clipOne(gs[i++], function(){ if(!run.stop) setTimeout(next, 220); });
+    clipOne(gs[i++], function(){ if(!run.stop) setTimeout(next, 220); }, rate);
   };
   next();
 }
@@ -1124,14 +1158,41 @@ function tileHTML(st,w){
   }
   return st.fidel ? '<span class="eth" lang="am">'+esc(w)+'</span><span class="lat">'+esc(WORD_LAT[w]||tr(w))+'</span>' : '<span class="lat">'+esc(w)+'</span>';
 }
+/* woven confetti for a perfect lesson: bits of tibeb thread in the band colours */
+function confetti(){
+  var cols=["#D43C28","#F4B41A","#14785A","#1F4FA8","#7B3FA0","#E8368F"], h="";
+  for (var i=0;i<36;i++) h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+cols[i%cols.length]+';animation-delay:'+(Math.random()*0.9).toFixed(2)+'s;transform:rotate('+Math.round(Math.random()*90)+'deg)"></i>';
+  return '<div class="confetti" aria-hidden="true">'+h+'</div>';
+}
+/* once a day, after the first lesson: the streak, and this week with the days practised */
+function viewStreak(){
+  var n=liveStreak(), first=n===1, d=new Date(), dow=d.getDay(), days="אבגדהוש", row="";
+  for (var i=0;i<7;i++){
+    var back=dow-i, on = back>=0 && back<n, isT=i===dow;
+    row+='<div class="sday'+(on?' on':'')+(isT?' today':'')+'"><small>'+days[i]+'\'</small><i></i></div>';
+  }
+  return '<div class="end streak">'+flame(n)+'<h2>'+(first?'יום אחד ברצף':n+' ימים ברצף')+'</h2>'+
+    '<p>'+(first?'רצף חדש נולד. תרגלו כל יום כדי שהוא יגדל.':'עוד יום נכנס לרצף. נתראה מחר?')+'</p>'+
+    '<div class="sweek" dir="rtl">'+row+'</div>'+
+    '<button class="btn primary wide" data-act="quit">המשך</button></div>';
+}
+function flame(n){                                // a woven diamond that glows, the day count inside
+  return '<div class="flame" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><linearGradient id="fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#D43C28"/><stop offset=".55" stop-color="#F4B41A"/><stop offset="1" stop-color="#FFE48A"/></linearGradient></defs>'+
+    '<rect x="25" y="25" width="70" height="70" rx="8" transform="rotate(45 60 60)" fill="url(#fl)"/>'+
+    '<rect x="38" y="38" width="44" height="44" rx="5" transform="rotate(45 60 60)" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 4" opacity=".8"/>'+
+    '<text x="60" y="73" text-anchor="middle" font-size="36" font-family="Suez One, serif" fill="#1E1A2B">'+n+'</text></svg></div>';
+}
 function viewLesson(){
+  if (L.done && L.streakShown) return viewStreak();
   if (L.done){
-    var acc=Math.round(100*L.right/Math.max(1,L.right+L.wrong));
-    return '<div class="end">'+mascot("happy",120)+'<h2>השיעור הושלם</h2><p>'+(L.wrong===0?"בלי אף טעות. בונוס של 5 XP.":esc(L.title))+'</p>'+weave(L.look.mo,100,40)+
+    var acc=Math.round(100*L.right/Math.max(1,L.right+L.wrong)), perfect=L.wrong===0;
+    var next=L.newDay ? '<button class="btn primary wide" data-act="streak">המשך</button>' : '<button class="btn primary wide" data-act="quit">המשך</button>';
+    return '<div class="end'+(perfect?' perfect':'')+'">'+(perfect?confetti():'')+mascot("happy",120,"bounce")+
+      (perfect ? '<h2>בלי אף טעות!</h2><p class="pmark">'+PRAISE_AM[2]+'</p><p>שיעור מושלם. בונוס של 5 XP.</p>' : '<h2>השיעור הושלם</h2><p>'+esc(L.title)+'</p>')+
+      weave(L.look.mo,100,40)+
       '<div class="cards"><div class="scard"><small>נקודות</small><b>'+L.gain+'</b></div>'+
       '<div class="scard"><small>דיוק</small><b>'+acc+'%</b></div>'+
-      '<div class="scard"><small>רצף ימים</small><b>'+liveStreak()+'</b></div></div>'+
-      '<button class="btn primary wide" data-act="quit">המשך</button></div>';
+      '<div class="scard"><small>הרצף הכי ארוך</small><b>'+L.best+'</b></div></div>'+next+'</div>';
   }
   if (L.failed){
     return '<div class="end sad">'+mascot("sad",120)+'<h2>נגמרו הלבבות</h2><p>לא נורא, ככה לומדים. המילים שהיו בהן טעויות יחזרו ראשונות בפעם הבאה.</p>'+
@@ -1139,7 +1200,8 @@ function viewLesson(){
   }
   var st=cur(), fb=L.phase==="fb", pct=Math.round(100*(L.i+(fb?1:0))/L.steps.length);
   var h='<div class="lesson"><div class="l-top"><button class="icon-btn" data-act="quit" aria-label="יציאה מהשיעור">✕</button>'+
-    '<div class="lbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+weave(L.look.mo,pct,14)+'</div>'+
+    '<div class="lbar'+(L.combo>=5?' hot':'')+'" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'">'+
+      (L.combo>=2?'<span class="combo'+(L.pop&&fb?' pop':'')+'">רצף \u00D7'+L.combo+'</span>':'')+weave(L.look.mo,pct,14)+'</div>'+
     '<div class="hearts" role="img" aria-label="נשארו '+L.hearts+' מתוך '+HEARTS+' לבבות">'+[0,1,2,3,4].map(function(i){ return '<i'+(i<L.hearts?'':' class="off"')+'></i>'; }).join("")+'</div></div><h2 class="ask">'+st.ask+'</h2>';
   var ready=false;
   if (st.t==="learn"){
@@ -1170,10 +1232,9 @@ function viewLesson(){
   if (!fb){
     h+='<div class="l-foot"><div>'+(st.t==="match" ? '<p class="hint">בוחרים פריט מכל עמודה</p>' : '<button class="btn primary wide" data-act="check"'+(ready?'':' disabled')+'>בדיקה</button>')+'</div></div>';
   } else if (L.ok){
-    var title = (L.combo===3||L.combo===5||L.combo===8) ? GOBEZ+'<small>'+L.combo+' ברצף</small>' : PRAISE[L.i%PRAISE.length];
-    h+='<div class="l-foot ok"><div><div class="fb-t">'+title+'</div>'+(st.answerHTML?'<div class="fb-a">'+st.answerHTML+'</div>':'<div class="fb-a"></div>')+'<button class="btn primary wide" data-act="cont">המשך</button></div></div>';
+    h+='<div class="l-foot ok"><div><div class="fb-row">'+mascot("happy",46,"cheer")+'<div class="fb-t">'+(L.praise||pickPraise())+'</div></div>'+(st.answerHTML?'<div class="fb-a">'+st.answerHTML+'</div>':'<div class="fb-a"></div>')+'<button class="btn primary wide" data-act="cont">המשך</button></div></div>';
   } else {
-    h+='<div class="l-foot no"><div><div class="fb-t">התשובה הנכונה:</div><div class="fb-a">'+st.answerHTML+'</div><button class="btn bad wide" data-act="cont">המשך</button></div></div>';
+    h+='<div class="l-foot no"><div><div class="fb-row">'+mascot("sad",46,"droop")+'<div class="fb-t">התשובה הנכונה:</div></div><div class="fb-a">'+st.answerHTML+'</div><button class="btn bad wide" data-act="cont">המשך</button></div></div>';
   }
   return h;
 }
@@ -1217,6 +1278,8 @@ app.addEventListener("click", function(e){
     case "retry": startLesson(L.kind, L.id); break;
     case "trace": stopAudio(); openTracer(v); break;
     case "clip": playClips([v]); break;
+    case "slow": playClips([v], 0.7); break;
+    case "streak": if (L){ L.streakShown=true; sound("flame"); render(); window.scrollTo(0,0); } break;
     case "clips": playClips(v.split(",")); break;
     case "cmode": stopAudio(); chartMode = v==="trace" ? "trace" : "play"; render(); break;
     case "grp":
@@ -1250,7 +1313,7 @@ document.addEventListener("keydown", function(e){
 });
 
 // read-only hooks for tests/run.mjs
-window.ALEF_TEST={ all:function(){ return ALL; }, units:function(){ return chapters(); }, letters:function(){ return LETTERS; } };
+window.ALEF_TEST={ all:function(){ return ALL; }, units:function(){ return chapters(); }, letters:function(){ return LETTERS; }, lesson:function(){ return L; }, start:function(k,id){ startLesson(k,id); } };
 render();
 connect();
 })();
